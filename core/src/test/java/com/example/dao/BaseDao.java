@@ -98,4 +98,14 @@ public class BaseDao<T> {
         preparedStmt.setString(1, value);
         preparedStmt.executeUpdate();
     }
+
+    public void deleteById(int id) throws SQLException {
+        String query = String.format("delete from %s where id = ?", tableName);
+
+        Connection connection = getConnection(databaseUrl);
+        PreparedStatement statement = connection.prepareStatement(query);
+        statement.setInt(1, id);
+
+        statement.executeUpdate();
+    }
 }
