@@ -8,6 +8,7 @@ import com.thoughtworks.orm.util.Lang;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
@@ -21,10 +22,12 @@ public class BaseDao<T> {
 
 
     private String databaseUrl;
+    private final String tableName;
 
     public BaseDao() {
         entityClass = (Class<T>) ((ParameterizedType) getClass()
                 .getGenericSuperclass()).getActualTypeArguments()[0];
+        this.tableName = entityClass.getAnnotation(Table.class).value();
     }
 
     public T findById(Integer id) {
@@ -72,5 +75,27 @@ public class BaseDao<T> {
 
     public void setDatabaseUrl(String databaseUrl) {
         this.databaseUrl = databaseUrl;
+    }
+
+    public void update(Object o) throws SQLException, NoSuchFieldException, IllegalAccessException {
+        Field id = o.getClass().getDeclaredField("id");
+        id.setAccessible(true);
+        Object aaa = id.get(o);
+        for (Field i : o.getClass().getDeclaredFields()) {
+            if (i.getName() != "id") {
+                i.setAccessible(true);
+                Object value = i.get(o);
+
+                updateDatabase((Integer) aaa, i.getName(), String.valueOf(value));
+            }
+        }
+    }
+
+    private void updateDatabase(int id, String name, String value) throws SQLException {
+        Connection connection = getConnection(databaseUrl);
+        String query = String.format("update %s set %s = ? where id = %s", tableName, name, id);
+        PreparedStatement preparedStmt = connection.prepareStatement(query);
+        preparedStmt.setString(1, value);
+        preparedStmt.executeUpdate();
     }
 }

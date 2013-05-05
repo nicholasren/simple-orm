@@ -40,6 +40,23 @@ public class MappingTest {
         assertThat(pet.getAge(), equalTo(2));
     }
 
+    @Test
+    public void should_update_object() throws SQLException, NoSuchFieldException, IllegalAccessException {
+        String insertSQL = "INSERT INTO pets values(%d,'%s', '%s', %d)";
+        connection.createStatement().executeUpdate(String.format(insertSQL, 1, "Doudou", "Female", 2));
+
+        Pet pet = petDao.findById(1);
+        pet.setAge(19);
+        pet.setName("James");
+        petDao.update(pet);
+
+        Pet pet1 = petDao.findById(1);
+
+        assertThat(pet1.getName(), equalTo("James"));
+        assertThat(pet1.getGender(), equalTo("Female"));
+        assertThat(pet1.getAge(), equalTo(19));
+    }
+
     @After
     public void tearDown() throws SQLException {
         connection.createStatement().execute("truncate pets");
