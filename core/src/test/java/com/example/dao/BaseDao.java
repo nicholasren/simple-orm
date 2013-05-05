@@ -91,12 +91,30 @@ public class BaseDao<T> {
         }
     }
 
-    private void updateDatabase(int id, String name, String value) throws SQLException {
+    public void insert(Object o) throws IllegalAccessException, SQLException {
+        String insertSQL = "INSERT INTO pets values(%s)";
+        String insertValue = "";
+
         Connection connection = getConnection(databaseUrl);
-        String query = String.format("update %s set %s = ? where id = %s", tableName, name, id);
-        PreparedStatement preparedStmt = connection.prepareStatement(query);
-        preparedStmt.setString(1, value);
-        preparedStmt.executeUpdate();
+
+        int count = 0;
+        for (Field i : o.getClass().getDeclaredFields()) {
+            count ++;
+
+            i.setAccessible(true);
+            Object value = i.get(o);
+            if (i.getType() == Integer.class) {
+                insertValue += String.valueOf(value);
+            } else {
+                insertValue += "'" + String.valueOf(value) + "'";
+            }
+
+            if (count != o.getClass().getDeclaredFields().length) {
+                insertValue += ", ";
+            }
+        }
+        String lass = String.format(insertSQL,insertValue);
+        connection.createStatement().executeUpdate(lass);
     }
 
     public void deleteById(int id) throws SQLException {
@@ -107,5 +125,13 @@ public class BaseDao<T> {
         statement.setInt(1, id);
 
         statement.executeUpdate();
+    }
+
+    private void updateDatabase(int id, String name, String value) throws SQLException {
+        Connection connection = getConnection(databaseUrl);
+        String query = String.format("update %s set %s = ? where id = %s", tableName, name, id);
+        PreparedStatement preparedStmt = connection.prepareStatement(query);
+        preparedStmt.setString(1, value);
+        preparedStmt.executeUpdate();
     }
 }

@@ -75,6 +75,23 @@ public class MappingTest {
         assertThat(pet1.getAge(), equalTo(19));
     }
 
+    @Test
+    public void should_insert_object_to_database() throws SQLException, NoSuchFieldException, IllegalAccessException {
+
+        Pet pet = new Pet();
+        pet.setId(1);
+        pet.setAge(19);
+        pet.setName("James");
+        pet.setGender("Female");
+        petDao.insert(pet);
+
+        Pet pet1 = petDao.findById(1);
+
+        assertThat(pet1.getName(), equalTo("James"));
+        assertThat(pet1.getGender(), equalTo("Female"));
+        assertThat(pet1.getAge(), equalTo(19));
+    }
+
     @After
     public void tearDown() throws SQLException {
         connection.createStatement().execute("truncate pets");
