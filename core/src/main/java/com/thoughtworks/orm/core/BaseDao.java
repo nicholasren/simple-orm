@@ -1,9 +1,7 @@
-package com.example.dao;
+package com.thoughtworks.orm.core;
 
-import com.example.Pet;
 import com.thoughtworks.orm.annotations.Column;
 import com.thoughtworks.orm.annotations.Table;
-import com.thoughtworks.orm.util.Lang;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -30,7 +28,7 @@ public class BaseDao<T> {
         this.tableName = entityClass.getAnnotation(Table.class).value();
     }
 
-    public T findById(Integer id) {
+    public T findById(Long id) {
         String tableName = entityClass.getAnnotation(Table.class).value();
         String query = String.format("select * from %s where id = %s", tableName, id);
 
@@ -46,7 +44,7 @@ public class BaseDao<T> {
 
                 model = instanceFor(clazz);
 
-                Collection<Field> columnFields = getAnnotatedField(Pet.class, Column.class);
+                Collection<Field> columnFields = getAnnotatedField(clazz, Column.class);
 
                 injectField(resultSet, model, columnFields);
             }
@@ -77,43 +75,43 @@ public class BaseDao<T> {
         this.databaseUrl = databaseUrl;
     }
 
-    public void update(Object o) throws SQLException, NoSuchFieldException, IllegalAccessException {
-        Field id = o.getClass().getDeclaredField("id");
-        id.setAccessible(true);
-        Object aaa = id.get(o);
-        for (Field i : o.getClass().getDeclaredFields()) {
+    public void update(T t) throws SQLException, NoSuchFieldException, IllegalAccessException {
+        Field idField = t.getClass().getDeclaredField("id");
+        idField.setAccessible(true);
+        Object id = idField.get(t);
+        for (Field i : t.getClass().getDeclaredFields()) {
             if (i.getName() != "id") {
                 i.setAccessible(true);
-                Object value = i.get(o);
+                Object value = i.get(t);
 
-                updateDatabase((Integer) aaa, i.getName(), String.valueOf(value));
+                updateDatabase((Long) id, i.getName(), String.valueOf(value));
             }
         }
     }
 
-    public void insert(Object o) throws IllegalAccessException, SQLException {
+    public void insert(T t) throws IllegalAccessException, SQLException {
         String insertSQL = "INSERT INTO pets values(%s)";
         String insertValue = "";
 
         Connection connection = getConnection(databaseUrl);
 
         int count = 0;
-        for (Field i : o.getClass().getDeclaredFields()) {
-            count ++;
+        for (Field i : t.getClass().getDeclaredFields()) {
+            count++;
 
             i.setAccessible(true);
-            Object value = i.get(o);
+            Object value = i.get(t);
             if (i.getType() == Integer.class) {
                 insertValue += String.valueOf(value);
             } else {
                 insertValue += "'" + String.valueOf(value) + "'";
             }
 
-            if (count != o.getClass().getDeclaredFields().length) {
+            if (count != t.getClass().getDeclaredFields().length) {
                 insertValue += ", ";
             }
         }
-        String lass = String.format(insertSQL,insertValue);
+        String lass = String.format(insertSQL, insertValue);
         connection.createStatement().executeUpdate(lass);
     }
 
@@ -127,7 +125,7 @@ public class BaseDao<T> {
         statement.executeUpdate();
     }
 
-    private void updateDatabase(int id, String name, String value) throws SQLException {
+    private void updateDatabase(Long id, String name, String value) throws SQLException {
         Connection connection = getConnection(databaseUrl);
         String query = String.format("update %s set %s = ? where id = %s", tableName, name, id);
         PreparedStatement preparedStmt = connection.prepareStatement(query);
