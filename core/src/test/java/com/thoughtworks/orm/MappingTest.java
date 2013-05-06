@@ -24,8 +24,7 @@ public class MappingTest {
     @BeforeClass
     public static void beforeClass() throws Exception {
         connection = getConnection(databaseUrl);
-        petDao = new PetDao();
-        petDao.setDatabaseUrl(databaseUrl);
+        petDao = new PetDao(databaseUrl);
     }
 
 
@@ -34,7 +33,7 @@ public class MappingTest {
         String insertSQL = "INSERT INTO pets values(%d,'%s', '%s', %d)";
         connection.createStatement().executeUpdate(String.format(insertSQL, 1, "Doudou", "Female", 2));
 
-        Pet pet = petDao.findById(1);
+        Pet pet = petDao.findById(1L);
 
         assertThat(pet.getName(), equalTo("Doudou"));
         assertThat(pet.getGender(), equalTo("Female"));
@@ -46,7 +45,7 @@ public class MappingTest {
         String insertSQL = "INSERT INTO pets values(%d,'%s', '%s', %d)";
         connection.createStatement().executeUpdate(String.format(insertSQL, 1, "Doudou", "Female", 2));
 
-        Pet pet = petDao.findById(1);
+        Pet pet = petDao.findById(1L);
 
         assertThat(pet.getName(), equalTo("Doudou"));
         assertThat(pet.getGender(), equalTo("Female"));
@@ -54,7 +53,7 @@ public class MappingTest {
 
         petDao.deleteById(1);
 
-        Pet pet1 = petDao.findById(1);
+        Pet pet1 = petDao.findById(1L);
         assertNull(pet1);
     }
 
@@ -63,12 +62,12 @@ public class MappingTest {
         String insertSQL = "INSERT INTO pets values(%d,'%s', '%s', %d)";
         connection.createStatement().executeUpdate(String.format(insertSQL, 1, "Doudou", "Female", 2));
 
-        Pet pet = petDao.findById(1);
+        Pet pet = petDao.findById(1L);
         pet.setAge(19);
         pet.setName("James");
         petDao.update(pet);
 
-        Pet pet1 = petDao.findById(1);
+        Pet pet1 = petDao.findById(1L);
 
         assertThat(pet1.getName(), equalTo("James"));
         assertThat(pet1.getGender(), equalTo("Female"));
@@ -79,13 +78,13 @@ public class MappingTest {
     public void should_insert_object_to_database() throws SQLException, NoSuchFieldException, IllegalAccessException {
 
         Pet pet = new Pet();
-        pet.setId(1);
+        pet.setId(1L);
         pet.setAge(19);
         pet.setName("James");
         pet.setGender("Female");
         petDao.insert(pet);
 
-        Pet pet1 = petDao.findById(1);
+        Pet pet1 = petDao.findById(1L);
 
         assertThat(pet1.getName(), equalTo("James"));
         assertThat(pet1.getGender(), equalTo("Female"));

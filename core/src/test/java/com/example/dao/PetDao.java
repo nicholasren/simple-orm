@@ -4,7 +4,7 @@ import com.example.Pet;
 import com.thoughtworks.orm.core.BaseDao;
 
 public class PetDao extends BaseDao<Pet> {
-    public PetDao() {
-        super();
+    public PetDao(String databaseUrl) {
+        super(databaseUrl);
     }
 }

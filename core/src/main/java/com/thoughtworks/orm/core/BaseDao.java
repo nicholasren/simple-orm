@@ -19,14 +19,24 @@ public class BaseDao<T> {
     private Class<T> entityClass;
 
 
-    private String databaseUrl;
     private final String tableName;
+    private Connection connection;
 
-    public BaseDao() {
-        entityClass = (Class<T>) ((ParameterizedType) getClass()
+    public BaseDao(String databaseUrl) {
+        this.entityClass = (Class<T>) ((ParameterizedType) getClass()
                 .getGenericSuperclass()).getActualTypeArguments()[0];
         this.tableName = entityClass.getAnnotation(Table.class).value();
+        this.connection = getDBConnection(databaseUrl);
     }
+
+    private Connection getDBConnection(String databaseUrl) {
+        try {
+            return getConnection(databaseUrl);
+        } catch (SQLException e) {
+            throw makeThrow("Get error on getting database connection, stack trace are : %s", stackTrace(e));
+        }
+    }
+
 
     public T findById(Long id) {
         String tableName = entityClass.getAnnotation(Table.class).value();
@@ -34,17 +44,54 @@ public class BaseDao<T> {
 
         ResultSet resultSet = getResultSet(query);
 
-        return (T) buildInstance(resultSet, entityClass);
+        return (T) buildInstance(resultSet);
     }
 
-    private Object buildInstance(ResultSet resultSet, Class<?> clazz) {
+
+    public void update(T t) throws SQLException, NoSuchFieldException, IllegalAccessException {
+        Field idField = t.getClass().getDeclaredField("id");
+        idField.setAccessible(true);
+        Object id = idField.get(t);
+        for (Field i : t.getClass().getDeclaredFields()) {
+            if (i.getName() != "id") {
+                i.setAccessible(true);
+                Object value = i.get(t);
+
+                updateDatabase((Long) id, i.getName(), String.valueOf(value));
+            }
+        }
+    }
+
+    public void insert(T t) throws IllegalAccessException, SQLException {
+        String insertionSql = prepareInsertionSql(t);
+        connection.createStatement().executeUpdate(insertionSql);
+    }
+
+
+    public void deleteById(int id) throws SQLException {
+        String query = String.format("delete from %s where id = ?", tableName);
+
+        PreparedStatement statement = connection.prepareStatement(query);
+        statement.setInt(1, id);
+
+        statement.executeUpdate();
+    }
+
+    private void updateDatabase(Long id, String name, String value) throws SQLException {
+        String query = String.format("update %s set %s = ? where id = %s", tableName, name, id);
+        PreparedStatement preparedStmt = connection.prepareStatement(query);
+        preparedStmt.setString(1, value);
+        preparedStmt.executeUpdate();
+    }
+
+    private Object buildInstance(ResultSet resultSet) {
         Object model = null;
         try {
             if (resultSet.next()) {
 
-                model = instanceFor(clazz);
+                model = instanceFor(entityClass);
 
-                Collection<Field> columnFields = getAnnotatedField(clazz, Column.class);
+                Collection<Field> columnFields = getAnnotatedField(entityClass, Column.class);
 
                 injectField(resultSet, model, columnFields);
             }
@@ -64,44 +111,22 @@ public class BaseDao<T> {
 
     private ResultSet getResultSet(String query) {
         try {
-            Connection connection = getConnection(databaseUrl);
             return connection.createStatement().executeQuery(query);
         } catch (SQLException e) {
             throw makeThrow("Get error, stack trace are : %s", stackTrace(e));
         }
     }
 
-    public void setDatabaseUrl(String databaseUrl) {
-        this.databaseUrl = databaseUrl;
-    }
-
-    public void update(T t) throws SQLException, NoSuchFieldException, IllegalAccessException {
-        Field idField = t.getClass().getDeclaredField("id");
-        idField.setAccessible(true);
-        Object id = idField.get(t);
-        for (Field i : t.getClass().getDeclaredFields()) {
-            if (i.getName() != "id") {
-                i.setAccessible(true);
-                Object value = i.get(t);
-
-                updateDatabase((Long) id, i.getName(), String.valueOf(value));
-            }
-        }
-    }
-
-    public void insert(T t) throws IllegalAccessException, SQLException {
+    private String prepareInsertionSql(T t) throws IllegalAccessException {
         String insertSQL = "INSERT INTO pets values(%s)";
         String insertValue = "";
-
-        Connection connection = getConnection(databaseUrl);
-
         int count = 0;
-        for (Field i : t.getClass().getDeclaredFields()) {
+        for (Field field : getAnnotatedField(entityClass, Column.class)) {
             count++;
 
-            i.setAccessible(true);
-            Object value = i.get(t);
-            if (i.getType() == Integer.class) {
+            field.setAccessible(true);
+            Object value = field.get(t);
+            if (field.getType() == Integer.class) {
                 insertValue += String.valueOf(value);
             } else {
                 insertValue += "'" + String.valueOf(value) + "'";
@@ -111,25 +136,8 @@ public class BaseDao<T> {
                 insertValue += ", ";
             }
         }
-        String lass = String.format(insertSQL, insertValue);
-        connection.createStatement().executeUpdate(lass);
+        return String.format(insertSQL, insertValue);
     }
 
-    public void deleteById(int id) throws SQLException {
-        String query = String.format("delete from %s where id = ?", tableName);
 
-        Connection connection = getConnection(databaseUrl);
-        PreparedStatement statement = connection.prepareStatement(query);
-        statement.setInt(1, id);
-
-        statement.executeUpdate();
-    }
-
-    private void updateDatabase(Long id, String name, String value) throws SQLException {
-        Connection connection = getConnection(databaseUrl);
-        String query = String.format("update %s set %s = ? where id = %s", tableName, name, id);
-        PreparedStatement preparedStmt = connection.prepareStatement(query);
-        preparedStmt.setString(1, value);
-        preparedStmt.executeUpdate();
-    }
 }

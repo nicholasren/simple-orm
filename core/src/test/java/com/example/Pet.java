@@ -7,7 +7,7 @@ import com.thoughtworks.orm.annotations.Table;
 public class Pet {
 
     @Column
-    private Integer id;
+    private Long id;
     @Column
     private String name;
     @Column
@@ -40,7 +40,7 @@ public class Pet {
         this.gender = gender;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 }
