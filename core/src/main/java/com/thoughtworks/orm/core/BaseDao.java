@@ -1,15 +1,10 @@
 package com.thoughtworks.orm.core;
 
-import com.thoughtworks.orm.annotations.Column;
-import com.thoughtworks.orm.annotations.Table;
-
-import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
 
 import static com.thoughtworks.orm.util.Lang.*;
 import static java.sql.DriverManager.getConnection;
@@ -19,6 +14,7 @@ public class BaseDao<T> {
     private final StatementGenerator statementGenerator;
     private Class<T> entityClass;
     private Connection connection;
+    private ModelBuilder modelBuilder;
 
     public BaseDao(String databaseUrl) {
         this.entityClass = (Class<T>) ((ParameterizedType) getClass()
@@ -26,13 +22,13 @@ public class BaseDao<T> {
 
         this.connection = getDBConnection(databaseUrl);
         this.statementGenerator = new StatementGenerator(entityClass, this.connection);
+        this.modelBuilder = new ModelBuilder(entityClass);
     }
 
 
     public T findById(Long id) {
         ResultSet resultSet = executeQuery(statementGenerator.findById(id));
-
-        return (T) buildInstance(resultSet);
+        return (T) modelBuilder.build(resultSet);
     }
 
     public void insert(T t) {
@@ -48,31 +44,6 @@ public class BaseDao<T> {
         executeUpdate(statementGenerator.delete(id));
     }
 
-    private Object buildInstance(ResultSet resultSet) {
-        Object model = null;
-        try {
-            if (resultSet.next()) {
-
-                model = instanceFor(entityClass);
-
-                Collection<Field> columnFields = getAnnotatedField(entityClass, Column.class);
-
-                injectField(resultSet, model, columnFields);
-            }
-        } catch (Exception e) {
-            throw makeThrow("Get error, stack trace are : %s", stackTrace(e));
-        }
-        return model;
-    }
-
-    private static <T> void injectField(ResultSet resultSet, T model, Collection<Field> columnFields) throws SQLException, IllegalAccessException {
-        for (Field field : columnFields) {
-            Object value = resultSet.getObject(field.getName(), field.getType());
-            field.setAccessible(true);
-            field.set(model, value);
-        }
-    }
-
     private Connection getDBConnection(String databaseUrl) {
         try {
             return getConnection(databaseUrl);
@@ -85,7 +56,7 @@ public class BaseDao<T> {
         try {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            makeThrow("Error encountered when executing insertion statement: %s", stackTrace(e));
+            makeThrow("Error encountered when executing update statement: %s", stackTrace(e));
         }
     }
 
@@ -94,8 +65,9 @@ public class BaseDao<T> {
         try {
             resultSet = preparedStatement.executeQuery();
         } catch (SQLException e) {
-            makeThrow("Error encountered when executing find by id statement: %s", stackTrace(e));
+            makeThrow("Error encountered when executing query statement: %s", stackTrace(e));
         }
         return resultSet;
     }
+
 }

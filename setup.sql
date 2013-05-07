@@ -1,10 +1,17 @@
-drop database orm if exists orm;
+drop database if exists orm;
 create database orm;
+
 use orm;
 
 create table pets(
-  id INT,
+  id INTEGER,
   name VARCHAR(100),
   gender VARCHAR(10),
-  age INT
+  age INTEGER,
+  person_id INTEGER
+);
+
+create table people(
+  id INTEGER,
+  name VARCHAR(100)
 );
