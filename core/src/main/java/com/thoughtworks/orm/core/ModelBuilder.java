@@ -16,9 +16,11 @@ class ModelBuilder<T> {
 
 
     private final Class<T> entityClass;
+    private final SessionFactory sessionFactory;
 
-    public ModelBuilder(Class<T> entityClass) {
+    public ModelBuilder(Class<T> entityClass, SessionFactory sessionFactory) {
         this.entityClass = entityClass;
+        this.sessionFactory = sessionFactory;
     }
 
     public T buildSingle(ResultSet resultSet) {
@@ -52,11 +54,38 @@ class ModelBuilder<T> {
         try {
             Collection<Field> columnFields = getAnnotatedField(entityClass, Column.class);
             injectField(resultSet, model, columnFields);
+
+            Collection<Field> associatedField = getAnnotatedField(entityClass, HasMany.class);
+            injectAssociation(model, associatedField);
         } catch (Exception e) {
             throw makeThrow("Get error, stack trace are : %s", stackTrace(e));
         }
         return model;
     }
+
+    private void injectAssociation(T model, Collection<Field> associatedField) throws IllegalAccessException {
+        for (Field field : associatedField) {
+            HasMany annotation = field.getAnnotation(HasMany.class);
+            Class targetClass = annotation.targetEntity();
+            String though = annotation.though();
+            List s = sessionFactory.where(though + " = ?", new Long[]{getId(model)}, targetClass);
+            field.setAccessible(true);
+            field.set(model, s);
+        }
+    }
+
+    private Long getId(Object obj) {
+        Long id;
+        try {
+            Field idField = obj.getClass().getDeclaredField("id");
+            idField.setAccessible(true);
+            id = (Long) idField.get(obj);
+        } catch (Exception e) {
+            throw makeThrow("Exception encountered when get id of obj, : %s", stackTrace(e));
+        }
+        return id;
+    }
+
 
     private <T> void injectField(ResultSet resultSet, T model, Collection<Field> columnFields) throws SQLException, IllegalAccessException {
         for (Field field : columnFields) {

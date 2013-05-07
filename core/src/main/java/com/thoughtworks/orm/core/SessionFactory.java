@@ -21,13 +21,13 @@ public class SessionFactory {
 
 
     public <T> T findById(Long id, Class<T> entityClass) {
-        ModelBuilder modelBuilder = new ModelBuilder(entityClass);
+        ModelBuilder modelBuilder = new ModelBuilder(entityClass, this);
         ResultSet resultSet = executeQuery(statementGenerator.findById(id, entityClass));
         return (T) modelBuilder.buildSingle(resultSet);
     }
 
     public <T> List<T> where(String condition, Object[] params, Class entityClass) {
-        ModelBuilder modelBuilder = new ModelBuilder(entityClass);
+        ModelBuilder modelBuilder = new ModelBuilder(entityClass, this);
         ResultSet resultSet = executeQuery(statementGenerator.where(condition, params, entityClass));
         return (List<T>) modelBuilder.buildCollections(resultSet);
     }

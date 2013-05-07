@@ -26,6 +26,4 @@ public class OneToManyTest extends ORMTest {
         assertThat(person, notNullValue());
         assertThat(pets.size(), equalTo(3));
     }
-
-
 }

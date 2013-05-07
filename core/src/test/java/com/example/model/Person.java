@@ -10,9 +10,12 @@ import java.util.List;
 public class Person {
 
     @Column
+    private Long id;
+
+    @Column
     private String name;
 
-    @HasMany(targetEntity = Pet.class)
+    @HasMany(targetEntity = Pet.class, though = "person_id")
     private List<Pet> pets;
 
     public Person() {

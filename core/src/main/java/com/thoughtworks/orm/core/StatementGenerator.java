@@ -42,7 +42,7 @@ class StatementGenerator {
         Collection<Field> sortedAnnotatedField = getSortedAnnotatedField(obj.getClass());
 
         String sql = String.format(INSERTION_TEMPLATE, table, join(getFieldNames(sortedAnnotatedField), COLUMN_DELIMITER),
-                join(getFieldValuePlaceHolders(obj, sortedAnnotatedField), COLUMN_DELIMITER));
+                join(getFieldValuePlaceHolders(obj), COLUMN_DELIMITER));
 
         info(sql);
         PreparedStatement preparedStatement;
@@ -140,7 +140,7 @@ class StatementGenerator {
         return builder.substring(0, builder.length() - delimiter.length());
     }
 
-    private Collection<String> getFieldValuePlaceHolders(final Object t, Collection<Field> fields) {
+    private Collection<String> getFieldValuePlaceHolders(final Object t) {
         return transform(getSortedAnnotatedField(t.getClass()), new Function<Field, String>() {
             @Override
             public String apply(java.lang.reflect.Field field) {
