@@ -18,12 +18,12 @@ import static com.thoughtworks.orm.util.Lang.*;
 
 class StatementGenerator {
     private static final String INSERTION_TEMPLATE = "INSERT INTO %s (%s) VALUES(%s)";
-    private static final String COLUMN_DELIMITER = ",";
-
     private static final String SELECT_BY_CONDITION_TEMPLATE = "SELECT * FROM %s WHERE %s";
     private static final String UPDATE_TEMPLATE = "UPDATE %s SET %s WHERE id = %s";
     private static final String DELETE_TEMPLATE = "DELETE FROM %s WHERE id = %s";
     private static final String ALL_TEMPLATE = "SELECT * FROM %s";
+
+    private static final String COLUMN_DELIMITER = ",";
 
     private java.sql.Connection connection;
 
