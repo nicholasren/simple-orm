@@ -53,4 +53,16 @@ public class Lang {
     public static void info(String s) {
         System.out.println(s);
     }
+
+    public static Long getId(Object obj) {
+        Long id;
+        try {
+            Field idField = obj.getClass().getDeclaredField("id");
+            idField.setAccessible(true);
+            id = (Long) idField.get(obj);
+        } catch (Exception e) {
+            throw makeThrow("Exception encountered when get id of obj, : %s", stackTrace(e));
+        }
+        return id;
+    }
 }

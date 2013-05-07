@@ -4,6 +4,7 @@ import com.thoughtworks.orm.annotations.Column;
 import com.thoughtworks.orm.annotations.HasMany;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -65,27 +66,21 @@ class ModelBuilder<T> {
 
     private void injectAssociation(T model, Collection<Field> associatedField) throws IllegalAccessException {
         for (Field field : associatedField) {
-            HasMany annotation = field.getAnnotation(HasMany.class);
-            Class targetClass = annotation.targetEntity();
-            String though = annotation.though();
-            List s = sessionFactory.where(though + " = ?", new Long[]{getId(model)}, targetClass);
+            Class targetClass = resolveTargetClass(field);
+
+            List list = sessionFactory.where(foreignKey(model) + " = ?", new Long[]{getId(model)}, targetClass);
             field.setAccessible(true);
-            field.set(model, s);
+            field.set(model, list);
         }
     }
 
-    private Long getId(Object obj) {
-        Long id;
-        try {
-            Field idField = obj.getClass().getDeclaredField("id");
-            idField.setAccessible(true);
-            id = (Long) idField.get(obj);
-        } catch (Exception e) {
-            throw makeThrow("Exception encountered when get id of obj, : %s", stackTrace(e));
-        }
-        return id;
+    private String foreignKey(T model) {
+        return model.getClass().getSimpleName().toLowerCase() + "_id";
     }
 
+    private Class resolveTargetClass(Field field) {
+        return (Class) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+    }
 
     private <T> void injectField(ResultSet resultSet, T model, Collection<Field> columnFields) throws SQLException, IllegalAccessException {
         for (Field field : columnFields) {
@@ -94,5 +89,4 @@ class ModelBuilder<T> {
             field.set(model, value);
         }
     }
-
 }

@@ -15,7 +15,7 @@ public class Person {
     @Column
     private String name;
 
-    @HasMany(targetEntity = Pet.class, though = "person_id")
+    @HasMany
     private List<Pet> pets;
 
     public Person() {
