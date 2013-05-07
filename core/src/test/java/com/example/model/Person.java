@@ -9,6 +9,7 @@ import java.util.List;
 @Table("people")
 public class Person {
 
+
     @Column
     private Long id;
 
@@ -21,7 +22,16 @@ public class Person {
     public Person() {
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
     public List<Pet> getPets() {
         return pets;
     }
+
 }

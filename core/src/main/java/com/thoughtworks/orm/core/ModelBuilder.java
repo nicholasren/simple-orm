@@ -2,6 +2,7 @@ package com.thoughtworks.orm.core;
 
 import com.thoughtworks.orm.annotations.Column;
 import com.thoughtworks.orm.annotations.HasMany;
+import net.sf.cglib.proxy.Enhancer;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -51,36 +52,20 @@ class ModelBuilder<T> {
 
 
     private T createModel(ResultSet resultSet) {
-        T model = instanceFor(entityClass);
+        Enhancer en = new Enhancer();
+        en.setSuperclass(entityClass);
+        en.setCallback(new GetterInterceptor(sessionFactory));
+
+        T model = (T) en.create();
         try {
             Collection<Field> columnFields = getAnnotatedField(entityClass, Column.class);
             injectField(resultSet, model, columnFields);
-
-            Collection<Field> associatedField = getAnnotatedField(entityClass, HasMany.class);
-            injectAssociation(model, associatedField);
         } catch (Exception e) {
             throw makeThrow("Get error, stack trace are : %s", stackTrace(e));
         }
         return model;
     }
 
-    private void injectAssociation(T model, Collection<Field> associatedField) throws IllegalAccessException {
-        for (Field field : associatedField) {
-            Class targetClass = resolveTargetClass(field);
-
-            List list = sessionFactory.where(foreignKey(model) + " = ?", new Long[]{getId(model)}, targetClass);
-            field.setAccessible(true);
-            field.set(model, list);
-        }
-    }
-
-    private String foreignKey(T model) {
-        return model.getClass().getSimpleName().toLowerCase() + "_id";
-    }
-
-    private Class resolveTargetClass(Field field) {
-        return (Class) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-    }
 
     private <T> void injectField(ResultSet resultSet, T model, Collection<Field> columnFields) throws SQLException, IllegalAccessException {
         for (Field field : columnFields) {
