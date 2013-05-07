@@ -1,6 +1,5 @@
 package com.thoughtworks.orm.core;
 
-import java.lang.reflect.ParameterizedType;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,44 +9,40 @@ import java.util.List;
 import static com.thoughtworks.orm.util.Lang.*;
 import static java.sql.DriverManager.getConnection;
 
-public class BaseDao<T> {
+public class SessionFactory {
 
-    private final StatementGenerator statementGenerator;
-    private Class<T> entityClass;
     private Connection connection;
-    private ModelBuilder modelBuilder;
+    private StatementGenerator statementGenerator;
 
-    public BaseDao(String databaseUrl) {
-        this.entityClass = (Class<T>) ((ParameterizedType) getClass()
-                .getGenericSuperclass()).getActualTypeArguments()[0];
-
+    public SessionFactory(String databaseUrl) {
         this.connection = getDBConnection(databaseUrl);
-        this.statementGenerator = new StatementGenerator(entityClass, this.connection);
-        this.modelBuilder = new ModelBuilder(entityClass);
+        this.statementGenerator = new StatementGenerator(this.connection);
     }
 
 
-    public T findById(Long id) {
-        ResultSet resultSet = executeQuery(statementGenerator.findById(id));
-        return (T) modelBuilder.build(resultSet);
+    public <T> T findById(Long id, Class<T> entityClass) {
+        ModelBuilder modelBuilder = new ModelBuilder(entityClass);
+        ResultSet resultSet = executeQuery(statementGenerator.findById(id, entityClass));
+        return (T) modelBuilder.buildSingle(resultSet);
     }
 
-    public List<T> where(String condition, Object... params) {
-        ResultSet resultSet = executeQuery(statementGenerator.where(condition, params));
+    public <T> List<T> where(String condition, Object[] params, Class entityClass) {
+        ModelBuilder modelBuilder = new ModelBuilder(entityClass);
+        ResultSet resultSet = executeQuery(statementGenerator.where(condition, params, entityClass));
         return (List<T>) modelBuilder.buildCollections(resultSet);
     }
 
-    public void insert(T t) {
+    public <T> void insert(T t) {
         executeUpdate(statementGenerator.insert(t));
     }
 
-    public void update(T t) {
+    public <T> void update(T t) {
         executeUpdate(statementGenerator.update(t));
     }
 
 
-    public void deleteById(Long id) {
-        executeUpdate(statementGenerator.delete(id));
+    public <T> void deleteById(Long id, Class<T> entityClass) {
+        executeUpdate(statementGenerator.delete(id, entityClass));
     }
 
     private Connection getDBConnection(String databaseUrl) {

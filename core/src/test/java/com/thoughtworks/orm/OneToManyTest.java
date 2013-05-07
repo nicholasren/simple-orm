@@ -1,21 +1,16 @@
 package com.thoughtworks.orm;
 
-import com.example.dao.PersonDao;
 import com.example.model.Person;
-import org.junit.Before;
+import com.example.model.Pet;
 import org.junit.Test;
 
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class OneToManyTest extends ORMTest {
-
-    private PersonDao dao;
-
-    @Before
-    public void before() {
-        dao = new PersonDao(databaseUrl);
-    }
 
     @Test
     public void should_return_pets_belongs_to_person() {
@@ -25,11 +20,11 @@ public class OneToManyTest extends ORMTest {
         preparePet(3L, "p3", "female", 1, 1L);
 
 
-        Person person = dao.findById(1L);
-//        List<Pet> pets = person.getPets();
+        Person person = sessionFactory.findById(1L, Person.class);
+        List<Pet> pets = person.getPets();
 
         assertThat(person, notNullValue());
-//        assertThat(pets.size(), equalTo(3));
+        assertThat(pets.size(), equalTo(3));
     }
 
 

@@ -1,6 +1,8 @@
 package com.thoughtworks.orm;
 
+import com.thoughtworks.orm.core.SessionFactory;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 
 import java.sql.Connection;
@@ -11,10 +13,16 @@ import static java.sql.DriverManager.getConnection;
 public class ORMTest {
     protected static Connection connection;
     protected static String databaseUrl = "jdbc:mysql://localhost:3306/orm?user=root";
+    protected SessionFactory sessionFactory;
 
     @BeforeClass
     public static void beforeClass() throws Exception {
         connection = getConnection(databaseUrl);
+    }
+
+    @Before
+    public void before() {
+        sessionFactory = new SessionFactory(databaseUrl);
     }
 
     @AfterClass

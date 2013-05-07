@@ -23,8 +23,6 @@ class StatementGenerator {
     private static final String SELECT_BY_CONDITION_TEMPLATE = "SELECT * FROM %s WHERE %s";
     private static final String UPDATE_TEMPLATE = "UPDATE %s SET %s WHERE id = %s";
     private static final String DELETE_TEMPLATE = "DELETE FROM %s WHERE id = %s";
-    private final String table;
-    private Class<?> entityClass;
     private java.sql.Connection connection;
 
     private Function<Field, String> getNameFunction = new Function<Field, String>() {
@@ -34,22 +32,24 @@ class StatementGenerator {
         }
     };
 
-    StatementGenerator(Class<?> entityClass, Connection connection) {
-        this.entityClass = entityClass;
-        this.table = entityClass.getAnnotation(Table.class).value();
+    StatementGenerator(Connection connection) {
         this.connection = connection;
     }
 
     public PreparedStatement insert(Object obj) {
-        String sql = String.format(INSERTION_TEMPLATE, table, join(getFieldNames(getSortedAnnotatedField()), COLUMN_DELIMITER),
-                join(getFieldValuePlaceHolders(obj, getSortedAnnotatedField()), COLUMN_DELIMITER));
+        String table = resolveTable(obj);
+
+        Collection<Field> sortedAnnotatedField = getSortedAnnotatedField(obj.getClass());
+
+        String sql = String.format(INSERTION_TEMPLATE, table, join(getFieldNames(sortedAnnotatedField), COLUMN_DELIMITER),
+                join(getFieldValuePlaceHolders(obj, sortedAnnotatedField), COLUMN_DELIMITER));
 
         info(sql);
         PreparedStatement preparedStatement;
         try {
             preparedStatement = connection.prepareStatement(sql);
 
-            Object[] fieldValues = getFieldValues(obj, getSortedAnnotatedField()).toArray();
+            Object[] fieldValues = getFieldValues(obj, sortedAnnotatedField).toArray();
 
             for (int i = 0; i < fieldValues.length; i++) {
                 preparedStatement.setObject(i + 1, fieldValues[i]);
@@ -61,9 +61,14 @@ class StatementGenerator {
         return preparedStatement;
     }
 
-    public PreparedStatement update(Object obj) {
+    private String resolveTable(Object obj) {
+        return obj.getClass().getAnnotation(Table.class).value();
+    }
 
-        Collection<Field> fieldsExceptId = filter(getSortedAnnotatedField(), new Predicate<Field>() {
+    public PreparedStatement update(Object obj) {
+        String table = resolveTable(obj);
+
+        Collection<Field> fieldsExceptId = filter(getSortedAnnotatedField(obj.getClass()), new Predicate<Field>() {
             @Override
             public boolean apply(Field input) {
                 return !input.getName().equals("id");
@@ -95,14 +100,14 @@ class StatementGenerator {
         return preparedStatement;
     }
 
-    public PreparedStatement findById(Long id) {
-        return where("id = ?", new Object[]{id});
+    public PreparedStatement findById(Long id, Class entityClass) {
+        return where("id = ?", new Object[]{id}, entityClass);
     }
 
-    public PreparedStatement where(String condition, Object[] params) {
+    public PreparedStatement where(String condition, Object[] params, Class entityClass) {
         PreparedStatement preparedStatement;
         try {
-            String sql = String.format(SELECT_BY_CONDITION_TEMPLATE, table, condition);
+            String sql = String.format(SELECT_BY_CONDITION_TEMPLATE, resolveTable(entityClass), condition);
             info(sql);
             preparedStatement = connection.prepareStatement(sql);
             for (int i = 0; i < params.length; i++) {
@@ -114,10 +119,12 @@ class StatementGenerator {
         return preparedStatement;
     }
 
-    public PreparedStatement delete(Long id) {
+
+    public PreparedStatement delete(Long id, Class entityClass) {
+
         PreparedStatement preparedStatement;
         try {
-            String sql = String.format(DELETE_TEMPLATE, table, id);
+            String sql = String.format(DELETE_TEMPLATE, resolveTable(entityClass), id);
             preparedStatement = connection.prepareStatement(sql);
         } catch (SQLException e) {
             throw makeThrow("Exception encountered when generating delete by id statement: %s", stackTrace(e));
@@ -134,7 +141,7 @@ class StatementGenerator {
     }
 
     private Collection<String> getFieldValuePlaceHolders(final Object t, Collection<Field> fields) {
-        return transform(getSortedAnnotatedField(), new Function<Field, String>() {
+        return transform(getSortedAnnotatedField(t.getClass()), new Function<Field, String>() {
             @Override
             public String apply(java.lang.reflect.Field field) {
                 return "?";
@@ -165,8 +172,8 @@ class StatementGenerator {
         });
     }
 
-    private Collection<Field> getSortedAnnotatedField() {
-        return Ordering.natural().onResultOf(getNameFunction).sortedCopy(getAnnotatedField(this.entityClass, Column.class));
+    private Collection<Field> getSortedAnnotatedField(Class entityClass) {
+        return Ordering.natural().onResultOf(getNameFunction).sortedCopy(getAnnotatedField(entityClass, Column.class));
     }
 
     private Long getId(Object obj) {
@@ -180,4 +187,9 @@ class StatementGenerator {
         }
         return id;
     }
+
+    private String resolveTable(Class entityClass) {
+        return ((Table) entityClass.getAnnotation(Table.class)).value();
+    }
+
 }
