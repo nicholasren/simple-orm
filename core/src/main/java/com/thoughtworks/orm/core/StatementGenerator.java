@@ -17,10 +17,11 @@ import static com.google.common.collect.Collections2.transform;
 import static com.thoughtworks.orm.util.Lang.*;
 
 class StatementGenerator {
-    public static final String INSERTION_TEMPLATE = "INSERT INTO %s (%s) values(%s)";
-    public static final String COLUMN_DELIMITER = ",";
-    public static final String SELECT_BY_ID_TEMPLATE = "select * from %s where id = %s";
+    private static final String INSERTION_TEMPLATE = "INSERT INTO %s (%s) values(%s)";
+    private static final String COLUMN_DELIMITER = ",";
+    private static final String SELECT_BY_ID_TEMPLATE = "select * from %s where id = %s";
     private static final String UPDATE_TEMPLATE = "UPDATE %s set %s where id = %s";
+    private static final String DELETE_TEMPLATE = "delete from %s where id = %s";
 
     private final String table;
     private Class<?> entityClass;
@@ -109,6 +110,17 @@ class StatementGenerator {
             preparedStatement = connection.prepareStatement(sql);
         } catch (SQLException e) {
             throw makeThrow("Exception encountered when generating find by id statement: %s", stackTrace(e));
+        }
+        return preparedStatement;
+    }
+
+    public PreparedStatement delete(Long id) {
+        PreparedStatement preparedStatement;
+        try {
+            String sql = String.format(DELETE_TEMPLATE, table, id);
+            preparedStatement = connection.prepareStatement(sql);
+        } catch (SQLException e) {
+            throw makeThrow("Exception encountered when generating delete by id statement: %s", stackTrace(e));
         }
         return preparedStatement;
     }

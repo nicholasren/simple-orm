@@ -18,15 +18,12 @@ public class BaseDao<T> {
 
     private final StatementGenerator statementGenerator;
     private Class<T> entityClass;
-
-
-    private final String tableName;
     private Connection connection;
 
     public BaseDao(String databaseUrl) {
         this.entityClass = (Class<T>) ((ParameterizedType) getClass()
                 .getGenericSuperclass()).getActualTypeArguments()[0];
-        this.tableName = entityClass.getAnnotation(Table.class).value();
+
         this.connection = getDBConnection(databaseUrl);
         this.statementGenerator = new StatementGenerator(entityClass, this.connection);
     }
@@ -38,24 +35,17 @@ public class BaseDao<T> {
         return (T) buildInstance(resultSet);
     }
 
-
     public void insert(T t) {
         executeUpdate(statementGenerator.insertion(t));
     }
 
-
-    public void update(T t) throws SQLException, NoSuchFieldException, IllegalAccessException {
+    public void update(T t) {
         executeUpdate(statementGenerator.update(t));
     }
 
 
-    public void deleteById(int id) throws SQLException {
-        String query = String.format("delete from %s where id = ?", tableName);
-
-        PreparedStatement statement = connection.prepareStatement(query);
-        statement.setInt(1, id);
-
-        statement.executeUpdate();
+    public void deleteById(Long id) {
+        executeUpdate(statementGenerator.delete(id));
     }
 
     private Object buildInstance(ResultSet resultSet) {
