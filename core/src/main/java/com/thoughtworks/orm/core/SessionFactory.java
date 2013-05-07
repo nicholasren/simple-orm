@@ -71,4 +71,10 @@ public class SessionFactory {
         return resultSet;
     }
 
+    public <T> List<T> find(Criteria criteria, Class<T> entityClass) {
+        ModelBuilder modelBuilder = new ModelBuilder(entityClass, this);
+        ResultSet resultSet = executeQuery(statementGenerator.where(criteria.getCondition(), criteria.getParams(), entityClass));
+        return (List<T>) modelBuilder.buildCollections(resultSet);
+
+    }
 }

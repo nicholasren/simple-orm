@@ -1,8 +1,7 @@
 package com.thoughtworks.orm;
 
 import com.example.model.Pet;
-import com.thoughtworks.orm.core.SessionFactory;
-import org.junit.Before;
+import com.thoughtworks.orm.core.Criteria;
 import org.junit.Test;
 
 import java.sql.SQLException;
@@ -86,6 +85,36 @@ public class SimpleMappingTest extends ORMTest {
         assertThat(pet1.getName(), equalTo("James"));
         assertThat(pet1.getGender(), equalTo("Female"));
         assertThat(pet1.getAge(), equalTo(19));
+    }
+
+    @Test
+    public void should_query_records_by_criteria() {
+        Pet pet = new Pet();
+        pet.setId(1L);
+        pet.setAge(19);
+        pet.setName("James");
+        pet.setGender("Female");
+
+        sessionFactory.insert(pet);
+        pet.setAge(20);
+        pet.setName("Ben");
+        pet.setGender("Male");
+        sessionFactory.insert(pet);
+
+        pet.setAge(20);
+        pet.setName("JP");
+        pet.setGender("Male");
+        sessionFactory.insert(pet);
+
+        pet.setAge(20);
+        pet.setName("Luke");
+        pet.setGender("Male");
+        sessionFactory.insert(pet);
+
+        Criteria criteria = new Criteria();
+        criteria.eq("age", 20).and().eq("name", "Luke");
+        List<Pet> pet1 = sessionFactory.find(criteria, Pet.class);
+        assertThat(pet1.get(0).getName(), equalTo("Luke"));
     }
 
 }
