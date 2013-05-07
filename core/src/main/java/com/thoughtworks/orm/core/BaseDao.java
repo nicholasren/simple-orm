@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import static com.thoughtworks.orm.util.Lang.*;
 import static java.sql.DriverManager.getConnection;
@@ -29,6 +30,11 @@ public class BaseDao<T> {
     public T findById(Long id) {
         ResultSet resultSet = executeQuery(statementGenerator.findById(id));
         return (T) modelBuilder.build(resultSet);
+    }
+
+    public List<T> where(String condition, Object... params) {
+        ResultSet resultSet = executeQuery(statementGenerator.where(condition, params));
+        return (List<T>) modelBuilder.buildCollections(resultSet);
     }
 
     public void insert(T t) {
@@ -56,16 +62,16 @@ public class BaseDao<T> {
         try {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            makeThrow("Error encountered when executing update statement: %s", stackTrace(e));
+            throw makeThrow("Error encountered when executing update statement: %s", stackTrace(e));
         }
     }
 
     private ResultSet executeQuery(PreparedStatement preparedStatement) {
-        ResultSet resultSet = null;
+        ResultSet resultSet;
         try {
             resultSet = preparedStatement.executeQuery();
         } catch (SQLException e) {
-            makeThrow("Error encountered when executing query statement: %s", stackTrace(e));
+            throw makeThrow("Error encountered when executing query statement: %s", stackTrace(e));
         }
         return resultSet;
     }

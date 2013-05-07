@@ -20,6 +20,7 @@ class StatementGenerator {
     private static final String INSERTION_TEMPLATE = "INSERT INTO %s (%s) values(%s)";
     private static final String COLUMN_DELIMITER = ",";
     private static final String SELECT_BY_ID_TEMPLATE = "select * from %s where id = %s";
+    private static final String SELECT_BY_CONDITION_TEMPLATE = "select * from %s where %s";
     private static final String UPDATE_TEMPLATE = "UPDATE %s set %s where id = %s";
     private static final String DELETE_TEMPLATE = "delete from %s where id = %s";
 
@@ -44,6 +45,7 @@ class StatementGenerator {
         String sql = String.format(INSERTION_TEMPLATE, table, join(getFieldNames(getSortedAnnotatedField()), COLUMN_DELIMITER),
                 join(getFieldValuePlaceHolders(obj, getSortedAnnotatedField()), COLUMN_DELIMITER));
 
+        info(sql);
         PreparedStatement preparedStatement;
         try {
             preparedStatement = connection.prepareStatement(sql);
@@ -85,7 +87,7 @@ class StatementGenerator {
         });
 
         String sql = String.format(UPDATE_TEMPLATE, table, join(setFields, COLUMN_DELIMITER), id);
-        System.out.println(sql);
+        info(sql);
         PreparedStatement preparedStatement;
         try {
             preparedStatement = connection.prepareStatement(sql);
@@ -107,12 +109,29 @@ class StatementGenerator {
         PreparedStatement preparedStatement;
         try {
             String sql = String.format(SELECT_BY_ID_TEMPLATE, table, id);
+            info(sql);
             preparedStatement = connection.prepareStatement(sql);
         } catch (SQLException e) {
             throw makeThrow("Exception encountered when generating find by id statement: %s", stackTrace(e));
         }
         return preparedStatement;
     }
+
+    public PreparedStatement where(String condition, Object[] params) {
+        PreparedStatement preparedStatement;
+        try {
+            String sql = String.format(SELECT_BY_CONDITION_TEMPLATE, table, condition);
+            info(sql);
+            preparedStatement = connection.prepareStatement(sql);
+            for (int i = 0; i < params.length; i++) {
+                preparedStatement.setObject(i + 1, params[i]);
+            }
+        } catch (SQLException e) {
+            throw makeThrow("Exception encountered when generating find by condition statement: %s", stackTrace(e));
+        }
+        return preparedStatement;
+    }
+
 
     public PreparedStatement delete(Long id) {
         PreparedStatement preparedStatement;

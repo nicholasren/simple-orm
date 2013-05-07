@@ -1,13 +1,13 @@
 package com.thoughtworks.orm.core;
 
 import com.thoughtworks.orm.annotations.Column;
-import com.thoughtworks.orm.annotations.HasMany;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import static com.thoughtworks.orm.util.Lang.*;
 
@@ -20,20 +20,30 @@ class ModelBuilder<T> {
         this.entityClass = entityClass;
     }
 
-    public Object build(ResultSet resultSet) {
-        Object model = null;
+    public T build(ResultSet resultSet) {
+        T model = null;
         try {
             if (resultSet.next()) {
 
-                model = instanceFor(entityClass);
-
-                Collection<Field> columnFields = getAnnotatedField(entityClass, Column.class);
-                injectField(resultSet, model, columnFields);
+                model = createModel(resultSet);
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             throw makeThrow("Get error, stack trace are : %s", stackTrace(e));
         }
+
         return model;
+    }
+
+    public List<T> buildCollections(ResultSet resultSet) {
+        List<T> models = new ArrayList<T>();
+        try {
+            while (resultSet.next()) {
+                models.add(createModel(resultSet));
+            }
+        } catch (SQLException e) {
+            throw makeThrow("Get error, stack trace are : %s", stackTrace(e));
+        }
+        return models;
     }
 
 
@@ -45,4 +55,16 @@ class ModelBuilder<T> {
         }
     }
 
+
+    private T createModel(ResultSet resultSet) {
+        T model = instanceFor(entityClass);
+        try {
+
+            Collection<Field> columnFields = getAnnotatedField(entityClass, Column.class);
+            injectField(resultSet, model, columnFields);
+        } catch (Exception e) {
+            throw makeThrow("Get error, stack trace are : %s", stackTrace(e));
+        }
+        return model;
+    }
 }

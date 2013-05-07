@@ -19,14 +19,6 @@ public class Lang {
         return new RuntimeException(String.format(format, args));
     }
 
-    public static Method methodFor(Class<?> clazz, String name) {
-        try {
-            return clazz.getDeclaredMethod(name);
-        } catch (NoSuchMethodException e) {
-            throw makeThrow("can not find method %s for class %s", clazz.getCanonicalName(), name);
-        }
-    }
-
     public static String stackTrace(Throwable e) {
         StringBuffer buffer = new StringBuffer();
         buffer.append(e.getMessage());
@@ -56,5 +48,9 @@ public class Lang {
                 return field.isAnnotationPresent(annotationClazz);
             }
         });
+    }
+
+    public static void info(String s) {
+        System.out.println(s);
     }
 }

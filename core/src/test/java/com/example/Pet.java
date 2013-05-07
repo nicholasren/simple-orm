@@ -14,6 +14,7 @@ public class Pet {
     private String gender;
     @Column
     private Integer age;
+    private Long personId;
 
 
     public String getName() {
@@ -42,5 +43,9 @@ public class Pet {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getPersonId() {
+        return personId;
     }
 }
