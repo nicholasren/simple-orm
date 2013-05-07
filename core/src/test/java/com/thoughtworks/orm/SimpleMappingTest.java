@@ -72,13 +72,7 @@ public class SimpleMappingTest extends ORMTest {
 
     @Test
     public void should_insert_object_to_database() throws SQLException, NoSuchFieldException, IllegalAccessException {
-
-        Pet pet = new Pet();
-        pet.setId(1L);
-        pet.setAge(19);
-        pet.setName("James");
-        pet.setGender("Female");
-        sessionFactory.insert(pet);
+        preparePet(1L, "James", "Female", 19, 1L);
 
         Pet pet1 = sessionFactory.findById(1L, Pet.class);
 
@@ -89,27 +83,10 @@ public class SimpleMappingTest extends ORMTest {
 
     @Test
     public void should_query_records_by_criteria() {
-        Pet pet = new Pet();
-        pet.setId(1L);
-        pet.setAge(19);
-        pet.setName("James");
-        pet.setGender("Female");
-
-        sessionFactory.insert(pet);
-        pet.setAge(20);
-        pet.setName("Ben");
-        pet.setGender("Male");
-        sessionFactory.insert(pet);
-
-        pet.setAge(20);
-        pet.setName("JP");
-        pet.setGender("Male");
-        sessionFactory.insert(pet);
-
-        pet.setAge(20);
-        pet.setName("Luke");
-        pet.setGender("Male");
-        sessionFactory.insert(pet);
+        preparePet(1L, "James", "Female", 19, 1L);
+        preparePet(1L, "Ben", "Male", 20, 1L);
+        preparePet(1L, "JP", "Male", 20, 1L);
+        preparePet(1L, "Luke", "Female", 20, 1L);
 
         Criteria criteria = new Criteria();
         criteria.eq("age", 20).and().eq("name", "Luke");
