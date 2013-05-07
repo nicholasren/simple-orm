@@ -16,6 +16,7 @@ import static java.sql.DriverManager.getConnection;
 
 public class BaseDao<T> {
 
+    private final SQLGenerator sqlGenerator;
     private Class<T> entityClass;
 
 
@@ -27,6 +28,7 @@ public class BaseDao<T> {
                 .getGenericSuperclass()).getActualTypeArguments()[0];
         this.tableName = entityClass.getAnnotation(Table.class).value();
         this.connection = getDBConnection(databaseUrl);
+        this.sqlGenerator = new SQLGenerator(entityClass);
     }
 
     private Connection getDBConnection(String databaseUrl) {
@@ -63,7 +65,7 @@ public class BaseDao<T> {
     }
 
     public void insert(T t) throws IllegalAccessException, SQLException {
-        String insertionSql = prepareInsertionSql(t);
+        String insertionSql = sqlGenerator.insertionSql(t);
         connection.createStatement().executeUpdate(insertionSql);
     }
 
@@ -115,28 +117,6 @@ public class BaseDao<T> {
         } catch (SQLException e) {
             throw makeThrow("Get error, stack trace are : %s", stackTrace(e));
         }
-    }
-
-    private String prepareInsertionSql(T t) throws IllegalAccessException {
-        String insertSQL = "INSERT INTO pets values(%s)";
-        String insertValue = "";
-        int count = 0;
-        for (Field field : getAnnotatedField(entityClass, Column.class)) {
-            count++;
-
-            field.setAccessible(true);
-            Object value = field.get(t);
-            if (field.getType() == Integer.class) {
-                insertValue += String.valueOf(value);
-            } else {
-                insertValue += "'" + String.valueOf(value) + "'";
-            }
-
-            if (count != t.getClass().getDeclaredFields().length) {
-                insertValue += ", ";
-            }
-        }
-        return String.format(insertSQL, insertValue);
     }
 
 
