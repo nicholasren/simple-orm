@@ -16,7 +16,7 @@ import static java.sql.DriverManager.getConnection;
 
 public class BaseDao<T> {
 
-    private final SQLGenerator sqlGenerator;
+    private final StatementGenerator statementGenerator;
     private Class<T> entityClass;
 
 
@@ -28,15 +28,7 @@ public class BaseDao<T> {
                 .getGenericSuperclass()).getActualTypeArguments()[0];
         this.tableName = entityClass.getAnnotation(Table.class).value();
         this.connection = getDBConnection(databaseUrl);
-        this.sqlGenerator = new SQLGenerator(entityClass);
-    }
-
-    private Connection getDBConnection(String databaseUrl) {
-        try {
-            return getConnection(databaseUrl);
-        } catch (SQLException e) {
-            throw makeThrow("Get error on getting database connection, stack trace are : %s", stackTrace(e));
-        }
+        this.statementGenerator = new StatementGenerator(entityClass, this.connection);
     }
 
 
@@ -64,9 +56,12 @@ public class BaseDao<T> {
         }
     }
 
-    public void insert(T t) throws IllegalAccessException, SQLException {
-        String insertionSql = sqlGenerator.insertionSql(t);
-        connection.createStatement().executeUpdate(insertionSql);
+    public void insert(T t) {
+        try {
+            statementGenerator.insertion(t).execute();
+        } catch (SQLException e) {
+            makeThrow("Error encountered when executing insertion statement: %s", stackTrace(e));
+        }
     }
 
 
@@ -119,5 +114,11 @@ public class BaseDao<T> {
         }
     }
 
-
+    private Connection getDBConnection(String databaseUrl) {
+        try {
+            return getConnection(databaseUrl);
+        } catch (SQLException e) {
+            throw makeThrow("Get error on getting database connection, stack trace are : %s", stackTrace(e));
+        }
+    }
 }
