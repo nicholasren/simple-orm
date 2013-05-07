@@ -33,35 +33,19 @@ public class BaseDao<T> {
 
 
     public T findById(Long id) {
-        String tableName = entityClass.getAnnotation(Table.class).value();
-        String query = String.format("select * from %s where id = %s", tableName, id);
-
-        ResultSet resultSet = getResultSet(query);
+        ResultSet resultSet = executeQuery(statementGenerator.findById(id));
 
         return (T) buildInstance(resultSet);
     }
 
 
-    public void update(T t) throws SQLException, NoSuchFieldException, IllegalAccessException {
-        Field idField = t.getClass().getDeclaredField("id");
-        idField.setAccessible(true);
-        Object id = idField.get(t);
-        for (Field i : t.getClass().getDeclaredFields()) {
-            if (i.getName() != "id") {
-                i.setAccessible(true);
-                Object value = i.get(t);
-
-                updateDatabase((Long) id, i.getName(), String.valueOf(value));
-            }
-        }
+    public void insert(T t) {
+        executeUpdate(statementGenerator.insertion(t));
     }
 
-    public void insert(T t) {
-        try {
-            statementGenerator.insertion(t).execute();
-        } catch (SQLException e) {
-            makeThrow("Error encountered when executing insertion statement: %s", stackTrace(e));
-        }
+
+    public void update(T t) throws SQLException, NoSuchFieldException, IllegalAccessException {
+        executeUpdate(statementGenerator.update(t));
     }
 
 
@@ -72,13 +56,6 @@ public class BaseDao<T> {
         statement.setInt(1, id);
 
         statement.executeUpdate();
-    }
-
-    private void updateDatabase(Long id, String name, String value) throws SQLException {
-        String query = String.format("update %s set %s = ? where id = %s", tableName, name, id);
-        PreparedStatement preparedStmt = connection.prepareStatement(query);
-        preparedStmt.setString(1, value);
-        preparedStmt.executeUpdate();
     }
 
     private Object buildInstance(ResultSet resultSet) {
@@ -106,19 +83,29 @@ public class BaseDao<T> {
         }
     }
 
-    private ResultSet getResultSet(String query) {
-        try {
-            return connection.createStatement().executeQuery(query);
-        } catch (SQLException e) {
-            throw makeThrow("Get error, stack trace are : %s", stackTrace(e));
-        }
-    }
-
     private Connection getDBConnection(String databaseUrl) {
         try {
             return getConnection(databaseUrl);
         } catch (SQLException e) {
             throw makeThrow("Get error on getting database connection, stack trace are : %s", stackTrace(e));
         }
+    }
+
+    private void executeUpdate(PreparedStatement preparedStatement) {
+        try {
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            makeThrow("Error encountered when executing insertion statement: %s", stackTrace(e));
+        }
+    }
+
+    private ResultSet executeQuery(PreparedStatement preparedStatement) {
+        ResultSet resultSet = null;
+        try {
+            resultSet = preparedStatement.executeQuery();
+        } catch (SQLException e) {
+            makeThrow("Error encountered when executing find by id statement: %s", stackTrace(e));
+        }
+        return resultSet;
     }
 }
