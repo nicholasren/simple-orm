@@ -23,6 +23,8 @@ class StatementGenerator {
     private static final String SELECT_BY_CONDITION_TEMPLATE = "SELECT * FROM %s WHERE %s";
     private static final String UPDATE_TEMPLATE = "UPDATE %s SET %s WHERE id = %s";
     private static final String DELETE_TEMPLATE = "DELETE FROM %s WHERE id = %s";
+    private static final String ALL_TEMPLATE = "SELECT * FROM %s";
+
     private java.sql.Connection connection;
 
     private Function<Field, String> getNameFunction = new Function<Field, String>() {
@@ -119,12 +121,23 @@ class StatementGenerator {
         return preparedStatement;
     }
 
+    public <T> PreparedStatement all(Class<T> entityClass) {
+        try {
+            String sql = String.format(ALL_TEMPLATE, resolveTable(entityClass));
+            info(sql);
+            return connection.prepareStatement(sql);
+        } catch (SQLException e) {
+            throw makeThrow("Exception encountered when generating all statement: %s", stackTrace(e));
+        }
+    }
+
 
     public PreparedStatement delete(Long id, Class entityClass) {
 
         PreparedStatement preparedStatement;
         try {
             String sql = String.format(DELETE_TEMPLATE, resolveTable(entityClass), id);
+            info(sql);
             preparedStatement = connection.prepareStatement(sql);
         } catch (SQLException e) {
             throw makeThrow("Exception encountered when generating delete by id statement: %s", stackTrace(e));
@@ -191,5 +204,4 @@ class StatementGenerator {
     private String resolveTable(Class entityClass) {
         return ((Table) entityClass.getAnnotation(Table.class)).value();
     }
-
 }

@@ -77,4 +77,10 @@ public class SessionFactory {
         return (List<T>) modelBuilder.buildCollections(resultSet);
 
     }
+
+    public <T> List<T> all(Class<T> entityClass) {
+        ModelBuilder modelBuilder = new ModelBuilder(entityClass, this);
+        ResultSet resultSet = executeQuery(statementGenerator.all(entityClass));
+        return (List<T>) modelBuilder.buildCollections(resultSet);
+    }
 }

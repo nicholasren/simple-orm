@@ -26,4 +26,18 @@ public class OneToManyTest extends ORMTest {
         assertThat(person, notNullValue());
         assertThat(pets.size(), equalTo(3));
     }
+
+    @Test
+    public void should_not_have_n_plus_one_problem() {
+        preparePerson(1L, "Jim");
+        preparePerson(2L, "Kate");
+        preparePerson(3L, "Henry");
+
+        preparePet(1L, "p1", "female", 1, 1L);
+        preparePet(2L, "p2", "female", 1, 1L);
+        preparePet(3L, "p3", "female", 1, 2L);
+        List<Person> people = sessionFactory.all(Person.class);
+
+        assertThat(people.size(), equalTo(3));
+    }
 }

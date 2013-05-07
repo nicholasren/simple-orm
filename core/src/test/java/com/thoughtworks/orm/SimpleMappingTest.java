@@ -27,6 +27,15 @@ public class SimpleMappingTest extends ORMTest {
     }
 
     @Test
+    public void should_return_all(){
+        preparePet(1L, "Doudou", "Female", 2, 1L);
+        preparePet(2L, "Tom", "Female", 2, 1L);
+        List<Pet> pets = sessionFactory.all(Pet.class);
+
+        assertThat(pets.size(), equalTo(2));
+    }
+
+    @Test
     public void should_find_by_condition() {
         preparePet(1L, "p1", "Female", 2, 1L);
         preparePet(2L, "p2", "Female", 2, 1L);
