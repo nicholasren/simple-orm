@@ -1,7 +1,7 @@
 package com.thoughtworks.orm;
 
-import com.example.Pet;
 import com.example.dao.PetDao;
+import com.example.model.Pet;
 import org.junit.Before;
 import org.junit.Test;
 

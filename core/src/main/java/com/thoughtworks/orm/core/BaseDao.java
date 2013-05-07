@@ -38,7 +38,7 @@ public class BaseDao<T> {
     }
 
     public void insert(T t) {
-        executeUpdate(statementGenerator.insertion(t));
+        executeUpdate(statementGenerator.insert(t));
     }
 
     public void update(T t) {

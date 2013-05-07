@@ -2,13 +2,9 @@ package com.thoughtworks.orm;
 
 import com.example.dao.PersonDao;
 import com.example.model.Person;
-import com.example.model.Pet;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
-
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 

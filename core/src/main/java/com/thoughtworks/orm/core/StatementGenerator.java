@@ -17,13 +17,12 @@ import static com.google.common.collect.Collections2.transform;
 import static com.thoughtworks.orm.util.Lang.*;
 
 class StatementGenerator {
-    private static final String INSERTION_TEMPLATE = "INSERT INTO %s (%s) values(%s)";
+    private static final String INSERTION_TEMPLATE = "INSERT INTO %s (%s) VALUES(%s)";
     private static final String COLUMN_DELIMITER = ",";
-    private static final String SELECT_BY_ID_TEMPLATE = "select * from %s where id = %s";
-    private static final String SELECT_BY_CONDITION_TEMPLATE = "select * from %s where %s";
-    private static final String UPDATE_TEMPLATE = "UPDATE %s set %s where id = %s";
-    private static final String DELETE_TEMPLATE = "delete from %s where id = %s";
 
+    private static final String SELECT_BY_CONDITION_TEMPLATE = "SELECT * FROM %s WHERE %s";
+    private static final String UPDATE_TEMPLATE = "UPDATE %s SET %s WHERE id = %s";
+    private static final String DELETE_TEMPLATE = "DELETE FROM %s WHERE id = %s";
     private final String table;
     private Class<?> entityClass;
     private java.sql.Connection connection;
@@ -41,7 +40,7 @@ class StatementGenerator {
         this.connection = connection;
     }
 
-    public PreparedStatement insertion(Object obj) {
+    public PreparedStatement insert(Object obj) {
         String sql = String.format(INSERTION_TEMPLATE, table, join(getFieldNames(getSortedAnnotatedField()), COLUMN_DELIMITER),
                 join(getFieldValuePlaceHolders(obj, getSortedAnnotatedField()), COLUMN_DELIMITER));
 
@@ -57,20 +56,12 @@ class StatementGenerator {
             }
 
         } catch (SQLException e) {
-            throw makeThrow("Exception encountered when generating insertion statement: %s", stackTrace(e));
+            throw makeThrow("Exception encountered when generating insert statement: %s", stackTrace(e));
         }
         return preparedStatement;
     }
 
     public PreparedStatement update(Object obj) {
-        Long id;
-        try {
-            Field idField = obj.getClass().getDeclaredField("id");
-            idField.setAccessible(true);
-            id = (Long) idField.get(obj);
-        } catch (Exception e) {
-            throw makeThrow("Exception encountered when get id of obj, : %s", stackTrace(e));
-        }
 
         Collection<Field> fieldsExceptId = filter(getSortedAnnotatedField(), new Predicate<Field>() {
             @Override
@@ -86,7 +77,7 @@ class StatementGenerator {
             }
         });
 
-        String sql = String.format(UPDATE_TEMPLATE, table, join(setFields, COLUMN_DELIMITER), id);
+        String sql = String.format(UPDATE_TEMPLATE, table, join(setFields, COLUMN_DELIMITER), getId(obj));
         info(sql);
         PreparedStatement preparedStatement;
         try {
@@ -105,16 +96,7 @@ class StatementGenerator {
     }
 
     public PreparedStatement findById(Long id) {
-
-        PreparedStatement preparedStatement;
-        try {
-            String sql = String.format(SELECT_BY_ID_TEMPLATE, table, id);
-            info(sql);
-            preparedStatement = connection.prepareStatement(sql);
-        } catch (SQLException e) {
-            throw makeThrow("Exception encountered when generating find by id statement: %s", stackTrace(e));
-        }
-        return preparedStatement;
+        return where("id = ?", new Object[]{id});
     }
 
     public PreparedStatement where(String condition, Object[] params) {
@@ -131,7 +113,6 @@ class StatementGenerator {
         }
         return preparedStatement;
     }
-
 
     public PreparedStatement delete(Long id) {
         PreparedStatement preparedStatement;
@@ -188,5 +169,15 @@ class StatementGenerator {
         return Ordering.natural().onResultOf(getNameFunction).sortedCopy(getAnnotatedField(this.entityClass, Column.class));
     }
 
-
+    private Long getId(Object obj) {
+        Long id;
+        try {
+            Field idField = obj.getClass().getDeclaredField("id");
+            idField.setAccessible(true);
+            id = (Long) idField.get(obj);
+        } catch (Exception e) {
+            throw makeThrow("Exception encountered when get id of obj, : %s", stackTrace(e));
+        }
+        return id;
+    }
 }
