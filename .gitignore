@@ -8,7 +8,7 @@
 *.iws
 *.ipr
 simple-orm/build/tmp/
-simple-orm/core.iml
 simple-orm/build/
 sample/sample.iml
+simple-orm/simple-orm.iml
 
