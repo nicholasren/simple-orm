@@ -3,9 +3,12 @@ package com.thoughtworks.orm.core;
 import com.thoughtworks.orm.annotations.Column;
 import com.thoughtworks.orm.annotations.HasMany;
 import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.LazyLoader;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -25,41 +28,21 @@ class ModelBuilder<T> {
         this.sessionFactory = sessionFactory;
     }
 
-    public T buildSingle(ResultSet resultSet) {
-        T model = null;
-        try {
-            if (resultSet.next()) {
-                model = createModel(resultSet);
-            }
-        } catch (SQLException e) {
-            throw makeThrow("Get error, stack trace are : %s", stackTrace(e));
-        }
-
-        return model;
-    }
-
-    public List<T> buildCollections(ResultSet resultSet) {
-        List<T> models = new ArrayList<T>();
-        try {
-            while (resultSet.next()) {
-                models.add(createModel(resultSet));
-            }
-        } catch (SQLException e) {
-            throw makeThrow("Get error, stack trace are : %s", stackTrace(e));
-        }
-        return models;
+    public List<T> buildCollections(PreparedStatement statement) {
+        return createLazyCollection(statement);
     }
 
 
-    private T createModel(ResultSet resultSet) {
-        Enhancer en = new Enhancer();
-        en.setSuperclass(entityClass);
-        en.setCallback(new GetterInterceptor(sessionFactory));
+    private List<T> createLazyCollection(PreparedStatement statement) {
+        LazyLoader lazy = new Lazy(statement);
+        return (List<T>) Enhancer.create(List.class, lazy);
+    }
 
-        T model = (T) en.create();
+
+    private T createLazyModel(ResultSet resultSet) {
+        T model = (T) Enhancer.create(entityClass, new AssociationInterceptor(sessionFactory));
         try {
-            Collection<Field> columnFields = getAnnotatedField(entityClass, Column.class);
-            injectField(resultSet, model, columnFields);
+            injectField(resultSet, model);
         } catch (Exception e) {
             throw makeThrow("Get error, stack trace are : %s", stackTrace(e));
         }
@@ -67,11 +50,32 @@ class ModelBuilder<T> {
     }
 
 
-    private <T> void injectField(ResultSet resultSet, T model, Collection<Field> columnFields) throws SQLException, IllegalAccessException {
+    private <T> void injectField(ResultSet resultSet, T model) throws SQLException, IllegalAccessException {
+        Collection<Field> columnFields = getAnnotatedField(entityClass, Column.class);
         for (Field field : columnFields) {
             Object value = resultSet.getObject(field.getName(), field.getType());
             field.setAccessible(true);
             field.set(model, value);
         }
     }
+
+    public class Lazy implements LazyLoader {
+
+        private PreparedStatement statement;
+
+        public Lazy(PreparedStatement statement) {
+            this.statement = statement;
+        }
+
+        @Override
+        public List<T> loadObject() throws Exception {
+            List<T> list = new ArrayList<T>();
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                list.add(createLazyModel(resultSet));
+            }
+            return list;
+        }
+    }
+
 }

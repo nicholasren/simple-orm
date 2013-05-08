@@ -9,11 +9,12 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import static com.thoughtworks.orm.util.Lang.getId;
+import static com.thoughtworks.orm.util.Lang.info;
 
-public class GetterInterceptor implements MethodInterceptor {
+public class AssociationInterceptor implements MethodInterceptor {
     private SessionFactory sessionFactory;
 
-    public GetterInterceptor(SessionFactory sessionFactory) {
+    public AssociationInterceptor(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }
 
@@ -21,9 +22,9 @@ public class GetterInterceptor implements MethodInterceptor {
     public Object intercept(Object object, Method method, Object[] params, MethodProxy methodProxy) throws Throwable {
         Object result;
         Class returnType = method.getReturnType();
-
         if (isCollection(returnType)) {
-            result = sessionFactory.where(foreignKey(object) + " = ?", new Long[]{getId(object)}, resolveTargetClass(method));
+            info("start to load associated collections.");
+            result = sessionFactory.where(foreignKey(object) + " = ?", Arrays.asList(getId(object)).toArray(), resolveTargetClass(method));
         } else {
             //why method.invoke not working?
             result = methodProxy.invokeSuper(object, params);

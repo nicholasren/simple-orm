@@ -22,8 +22,10 @@ public class ORMTest {
     }
 
     @Before
-    public void before() {
+    public void before() throws SQLException {
         sessionFactory = new SessionFactory(databaseUrl);
+        connection.createStatement().execute("truncate pets");
+        connection.createStatement().execute("truncate people");
     }
 
     @After
