@@ -1,12 +1,16 @@
 package com.thoughtworks.orm.core;
 
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.LazyLoader;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import static com.thoughtworks.orm.util.Lang.*;
+import static com.thoughtworks.orm.util.Lang.makeThrow;
+import static com.thoughtworks.orm.util.Lang.stackTrace;
 import static java.sql.DriverManager.getConnection;
 
 public class SessionFactory {
@@ -19,11 +23,31 @@ public class SessionFactory {
         this.statementGenerator = new StatementGenerator(this.connection);
     }
 
+    public class Lazy <T> implements LazyLoader {
+
+
+        private final Class<T> entityClass;
+        private final ModelBuilder modelBuilder;
+        private final Long id;
+
+        public Lazy(Long id, Class entityClass, ModelBuilder modelBuilder) {
+            this.id = id;
+            this.entityClass = entityClass;
+            this.modelBuilder = modelBuilder;
+        }
+
+        @Override
+        public Object loadObject() throws Exception {
+            ResultSet resultSet = executeQuery(statementGenerator.findById(id, entityClass));
+            return (T) modelBuilder.buildSingle(resultSet);
+        }
+    }
 
     public <T> T findById(Long id, Class<T> entityClass) {
         ModelBuilder modelBuilder = new ModelBuilder(entityClass, this);
-        ResultSet resultSet = executeQuery(statementGenerator.findById(id, entityClass));
-        return (T) modelBuilder.buildSingle(resultSet);
+        LazyLoader lazy = new Lazy(id, entityClass, modelBuilder);
+        T model = (T) Enhancer.create(entityClass, lazy);
+        return model;
     }
 
     public <T> List<T> where(String condition, Object[] params, Class entityClass) {

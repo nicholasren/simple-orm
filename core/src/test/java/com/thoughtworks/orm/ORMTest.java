@@ -2,11 +2,11 @@ package com.thoughtworks.orm;
 
 import com.thoughtworks.orm.core.SessionFactory;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static java.sql.DriverManager.getConnection;
@@ -38,6 +38,21 @@ public class ORMTest {
             connection.createStatement().executeUpdate(String.format(insertSQL, id, name, gender, age, personId));
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    protected String findPetNameById(Long id) throws SQLException {
+        String selectSql = "SELECT name FROM pets WHERE id = %s";
+        ResultSet result = null;
+        try {
+            result = connection.createStatement().executeQuery(String.format(selectSql, id));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if (result.next()) {
+            return result.getString(1);
+        } else {
+            return "NULL";
         }
     }
 
