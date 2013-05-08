@@ -11,17 +11,16 @@ public class Pet {
     @Column
     private String name;
     @Column
-    private String gender;
+    private Gender gender;
     @Column
     private Integer age;
-    private Long personId;
 
 
     public String getName() {
         return name;
     }
 
-    public String getGender() {
+    public Gender getGender() {
         return gender;
     }
 
@@ -37,7 +36,7 @@ public class Pet {
         this.name = name;
     }
 
-    public void setGender(String gender) {
+    public void setGender(Gender gender) {
         this.gender = gender;
     }
 
@@ -45,3 +44,4 @@ public class Pet {
         this.id = id;
     }
 }
+

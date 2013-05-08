@@ -53,11 +53,19 @@ class ModelBuilder<T> {
     private <T> void injectField(ResultSet resultSet, T model) throws SQLException, IllegalAccessException {
         Collection<Field> columnFields = getAnnotatedField(entityClass, Column.class);
         for (Field field : columnFields) {
-            Object value = resultSet.getObject(field.getName(), field.getType());
             field.setAccessible(true);
-            field.set(model, value);
+            if (field.getType().isEnum()) {
+                Enum value = getEnumValue(resultSet, field);
+                field.set(model, value);
+            } else {
+                Object value = resultSet.getObject(field.getName(), field.getType());
+                field.set(model, value);
+            }
+
+
         }
     }
+
 
     public class Lazy implements LazyLoader {
 
@@ -78,4 +86,8 @@ class ModelBuilder<T> {
         }
     }
 
+    private Enum getEnumValue(ResultSet resultSet, Field field) throws SQLException {
+        String strValue = resultSet.getObject(field.getName(), String.class);
+        return Enum.valueOf((Class<Enum>) field.getType(), strValue);
+    }
 }

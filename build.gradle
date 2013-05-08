@@ -1,6 +1,7 @@
 allprojects {
   apply plugin: 'idea'
   apply plugin: 'maven'
+  apply plugin: 'java'
 
   repositories {
     mavenCentral()
@@ -26,7 +27,7 @@ allprojects {
 }
 
 project(":simple-orm") {
-  apply plugin: 'java'
+
   dependencies {
     compile(
         "com.google.guava:guava:$guavaVersion",

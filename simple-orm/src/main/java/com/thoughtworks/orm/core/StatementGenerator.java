@@ -177,7 +177,8 @@ class StatementGenerator {
             public Object apply(java.lang.reflect.Field field) {
                 try {
                     field.setAccessible(true);
-                    return field.get(t);
+                    Object value = field.get(t);
+                    return field.getType().isEnum() ? ((Enum) value).name() : value;
                 } catch (IllegalAccessException e) {
                     throw makeThrow("Got error when get field values %s", stackTrace(e));
                 }

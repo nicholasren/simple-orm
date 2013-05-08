@@ -4,3 +4,6 @@
 4. query record by id DONE
 5. one to many association DONE
 6. query records by criteria DONE
+7. enum mapping
+8. Array mapping
+9. Set mapping
