@@ -1,0 +1,11 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<testsuite name="com.thoughtworks.orm.OneToManyTest" tests="2" failures="0" errors="0" timestamp="1970-01-01T00:00:00" hostname="Nicholas-Rens-MBP.local" time="1.368006162787E9">
+  <properties/>
+  <testcase name="should_return_pets_belongs_to_person" classname="com.thoughtworks.orm.OneToManyTest" time="0.206"/>
+  <testcase name="should_not_have_n_plus_one_problem" classname="com.thoughtworks.orm.OneToManyTest" time="0.033"/>
+  <system-out><![CDATA[SELECT * FROM people WHERE id = ?
+SELECT * FROM pets WHERE person_id = ?
+SELECT * FROM people
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

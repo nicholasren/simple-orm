@@ -25,7 +25,7 @@ allprojects {
   }
 }
 
-project(":core") {
+project(":simple-orm") {
   apply plugin: 'java'
   dependencies {
     compile(
@@ -41,6 +41,17 @@ project(":core") {
         'mysql:mysql-connector-java:5.1.24'
     )
   }
+
+  task sourcesJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+  }
+
+  artifacts {
+    archives jar
+    archives sourcesJar
+  }
+
   version = '0.0.1-SNAPSHOT'
   group = 'com.github.nicholasren'
 }
@@ -48,9 +59,9 @@ project(":core") {
 project(":sample") {
   apply plugin: 'java'
   dependencies {
-    compile project(':core')
+    compile project(':simple-orm')
     compile "com.github.nicholasren:simple-di:0.0.6-SNAPSHOT"
-    compile "com.github.nicholasren:simple-mvc:0.0.1-SNAPSHOT"
+    compile "com.github.nicholasren:simple-mvc:0.0.2-SNAPSHOT"
     testCompile(
         "junit:junit-dep:$junitVersion",
         "org.hamcrest:hamcrest-core:$hamcrestVersion",
