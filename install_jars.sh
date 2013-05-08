@@ -6,5 +6,7 @@ cd ../simple-mvc && \
 echo "uploading simple-mvc" && \
 gradle simple-mvc:uploadArchives
 cd ../simple-orm && \
+echo "uploading simple-mvc" && \
+gradle simple-orm:uploadArchives
 echo "installing simple-xx jars" && \
 gradle idea
