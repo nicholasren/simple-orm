@@ -44,3 +44,24 @@ project(":core") {
   version = '0.0.1-SNAPSHOT'
   group = 'com.github.nicholasren'
 }
+
+project(":sample") {
+  apply plugin: 'java'
+  dependencies {
+    compile project(':core')
+    testCompile(
+        "junit:junit-dep:$junitVersion",
+        "org.hamcrest:hamcrest-core:$hamcrestVersion",
+        "org.hamcrest:hamcrest-library:$hamcrestVersion",
+        "org.seleniumhq.selenium:selenium-java:$seleniumWebdriverVersion",
+        "org.mockito:mockito-all:$mokitoVersion",
+    )
+  }
+
+  task start(type: JavaExec, dependsOn: [classes]) {
+    main = 'com.house.server.AppServer'
+    classpath = sourceSets.main.runtimeClasspath
+  }
+
+}
+
