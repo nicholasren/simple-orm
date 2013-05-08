@@ -2,6 +2,9 @@ package com.house.controller;
 
 import com.house.model.House;
 import com.house.service.HouseService;
+import com.thoughtworks.mvc.annotation.Param;
+import com.thoughtworks.mvc.annotation.Path;
+import com.thoughtworks.mvc.core.Controller;
 import com.thoughtworks.simpleframework.di.annotation.Component;
 import com.thoughtworks.simpleframework.di.annotation.Inject;
 import com.thoughtworks.simpleframework.di.core.Lifecycle;

@@ -15,12 +15,10 @@ public class PostTest extends FunctionalTest {
         driver.get(JETTY_SERVER_URL + "/house/new");
 
         WebElement name = driver.findElement(By.name("house.name"));
-        WebElement age = driver.findElement(By.name("house.age"));
         WebElement doorHeight = driver.findElement(By.name("house.door.height"));
         WebElement doorWidth = driver.findElement(By.name("house.door.width"));
 
         name.sendKeys("Doudou");
-        age.sendKeys("18");
         doorHeight.sendKeys("2");
         doorWidth.sendKeys("1");
 

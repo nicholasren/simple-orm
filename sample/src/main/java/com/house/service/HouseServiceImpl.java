@@ -1,7 +1,7 @@
 package com.house.service;
 
 import com.house.model.House;
-import com.thoughtworks.di.annotation.Component;
+import com.thoughtworks.simpleframework.di.annotation.Component;
 
 import java.util.HashMap;
 import java.util.Map;

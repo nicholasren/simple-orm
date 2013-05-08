@@ -1,13 +1,11 @@
 package mvc.functional;
 
-import com.thoughtworks.main.JettyLauncher;
+import com.thoughtworks.mvc.main.JettyLauncher;
 import org.junit.After;
 import org.junit.Before;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
-
-import java.net.URL;
 
 public class FunctionalTest {
     public static final String JETTY_SERVER_URL = "http://localhost:8080/sample";
@@ -15,7 +13,7 @@ public class FunctionalTest {
 
     @Before
     public void setUp() {
-        JettyLauncher.start("src/main/webapp", "/sample");
+        JettyLauncher.start("sample/src/main/webapp", "/sample");
         driver = new ChromeDriver();
     }
 

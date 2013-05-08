@@ -1,0 +1,73 @@
+[0.000][INFO]:      ChromeDriver 26.0.1383.0 /usr/local/bin/chromedriver
+[0.453][FINE]:      Initializing session with capabilities {
+   "browserName": "chrome",
+   "chrome.switches": [  ],
+   "chromeOptions": {
+      "args": [  ],
+      "extensions": [  ]
+   },
+   "platform": "ANY",
+   "version": ""
+}
+
+[0.453][INFO]:      Launching chrome: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --disable-hang-monitor --disable-prompt-on-repost --dom-automation --full-memory-crash-report --no-default-browser-check --no-first-run --disable-background-networking --disable-sync --disable-translate --disable-web-resources --safebrowsing-disable-auto-update --safebrowsing-disable-download-protection --disable-client-side-phishing-detection --disable-component-update --disable-default-apps --enable-logging --log-level=1 --use-mock-keychain --ignore-certificate-errors about:blank
+[0.894][INFO]:      Connected to Chrome successfully. Version: 26.0.1410.65
+[0.902][FINE]:      Command received (/session/0564349c16ded9ae5dfdeb51413f7fc2)
+[0.902][FINE]:      Command finished (/session/0564349c16ded9ae5dfdeb51413f7fc2) with response {
+   "sessionId": "0564349c16ded9ae5dfdeb51413f7fc2",
+   "status": 0,
+   "value": {
+      "acceptSslCerts": false,
+      "applicationCacheEnabled": false,
+      "browserConnectionEnabled": false,
+      "browserName": "chrome",
+      "chrome.chromedriverVersion": "26.0.1383.0",
+      "cssSelectorsEnabled": true,
+      "databaseEnabled": false,
+      "handlesAlerts": true,
+      "javascriptEnabled": true,
+      "locationContextEnabled": false,
+      "nativeEvents": true,
+      "platform": "mac",
+      "rotatable": false,
+      "takesScreenshot": true,
+      "version": "26.0.1410.65",
+      "webStorageEnabled": true
+   }
+}
+
+[0.905][FINE]:      Command received (/session/0564349c16ded9ae5dfdeb51413f7fc2/url) with params {
+   "url": "http://localhost:8080/sample/house/new"
+}
+
+[0.905][FINER]:     Waiting for all views to stop loading...
+[0.905][FINER]:     Done waiting for all views to stop loading
+[1.037][FINER]:     Waiting for all views to stop loading...
+[1.040][FINER]:     Done waiting for all views to stop loading
+[1.040][FINE]:      Command finished (/session/0564349c16ded9ae5dfdeb51413f7fc2/url) with response {
+   "sessionId": "0564349c16ded9ae5dfdeb51413f7fc2",
+   "status": 0,
+   "value": {
+
+   }
+}
+
+[1.043][FINE]:      Command received (/session/0564349c16ded9ae5dfdeb51413f7fc2/element) with params {
+   "using": "name",
+   "value": "house.name"
+}
+
+[1.043][FINER]:     Waiting for all views to stop loading...
+[1.052][FINER]:     Done waiting for all views to stop loading
+[1.074][FINER]:     Waiting for all views to stop loading...
+[1.074][FINER]:     Done waiting for all views to stop loading
+[1.074][WARNING]:   Command finished (/session/0564349c16ded9ae5dfdeb51413f7fc2/element) with response {
+   "sessionId": "0564349c16ded9ae5dfdeb51413f7fc2",
+   "status": 7,
+   "value": {
+      "message": "The element could not be found"
+   }
+}
+
+[1.078][FINE]:      Command received (/session/0564349c16ded9ae5dfdeb51413f7fc2)
+[1.159][INFO]:      Chrome shutdown
