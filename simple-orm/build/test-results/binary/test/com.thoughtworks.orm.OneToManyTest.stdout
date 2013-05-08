@@ -1,3 +1,0 @@
-SELECT * FROM people WHERE id = ?
-SELECT * FROM pets WHERE person_id = ?
-SELECT * FROM people
