@@ -1,6 +1,7 @@
 package com.thoughtworks.orm;
 
 import com.thoughtworks.orm.core.SessionFactory;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -25,8 +26,8 @@ public class ORMTest {
         sessionFactory = new SessionFactory(databaseUrl);
     }
 
-    @AfterClass
-    public static void tearDown() throws SQLException {
+    @After
+    public void after() throws SQLException {
         connection.createStatement().execute("truncate pets");
         connection.createStatement().execute("truncate people");
     }
