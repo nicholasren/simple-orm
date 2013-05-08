@@ -7,4 +7,6 @@
 .gradle/
 *.iws
 *.ipr
+core/build/tmp/
+core/core.iml
 
