@@ -1,7 +1,6 @@
 1. insert a record DONE
-2. update a record
+2. update a record DONE
 3. delete a record DONE
 4. query record by id DONE
-5. one to one association
-6. one to many association
-7. query records by criteria
+5. one to many association DONE
+6. query records by criteria DONE
