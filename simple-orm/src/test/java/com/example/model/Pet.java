@@ -6,6 +6,7 @@ import com.thoughtworks.orm.annotations.Table;
 @Table("pets")
 public class Pet {
 
+
     @Column
     private Long id;
     @Column
@@ -15,6 +16,10 @@ public class Pet {
     @Column
     private Integer age;
 
+
+    public Long getId() {
+        return id;
+    }
 
     public String getName() {
         return name;

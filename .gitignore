@@ -7,8 +7,6 @@
 .gradle/
 *.iws
 *.ipr
-simple-orm/build/tmp/
-simple-orm/build/
 sample/sample.iml
 simple-orm/simple-orm.iml
-
+simple-orm/build/
