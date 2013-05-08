@@ -1,16 +1,23 @@
 package com.thoughtworks.orm.core;
 
+
+import com.google.common.collect.ImmutableSet;
 import com.thoughtworks.orm.annotations.HasMany;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 import static com.thoughtworks.orm.util.Lang.getId;
 import static com.thoughtworks.orm.util.Lang.info;
+import static com.google.common.base.CaseFormat.LOWER_CAMEL;
+import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 
 public class AssociationInterceptor implements MethodInterceptor {
     private SessionFactory sessionFactory;
@@ -25,7 +32,15 @@ public class AssociationInterceptor implements MethodInterceptor {
             Field field = associationField(method);
             if (isAssociation(field)) {
                 info("start to load associated collections.");
-                return sessionFactory.where(foreignKey(object) + " = ?", Arrays.asList(getId(object)).toArray(), targetClass(field));
+                List result = sessionFactory.where(foreignKey(object) + " = ?", Arrays.asList(getId(object)).toArray(), targetClass(field));
+
+                if (method.getReturnType().equals(Set.class)) {
+                    return ImmutableSet.copyOf(result);
+                } else {
+                    return result;
+                }
+
+
             }
         }
         //why method.invoke not working?
@@ -43,7 +58,7 @@ public class AssociationInterceptor implements MethodInterceptor {
     private Field associationField(Method method) {
         Field field = null;
         Class clazz = method.getDeclaringClass();
-        String fieldName = method.getName().replace("get", "").toLowerCase();
+        String fieldName = UPPER_CAMEL.to(LOWER_CAMEL, method.getName().replace("get", ""));
         try {
             field = clazz.getDeclaredField(fieldName);
         } catch (NoSuchFieldException e) {

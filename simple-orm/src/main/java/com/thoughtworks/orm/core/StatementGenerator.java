@@ -109,7 +109,7 @@ class StatementGenerator {
     public PreparedStatement where(String condition, Object[] params, Class entityClass) {
         PreparedStatement preparedStatement;
         try {
-            String sql = String.format(SELECT_BY_CONDITION_TEMPLATE, resolveTable(entityClass), condition);
+            String sql = String.format(SELECT_BY_CONDITION_TEMPLATE, tableFor(entityClass), condition);
             info(sql);
             preparedStatement = connection.prepareStatement(sql);
             for (int i = 0; i < params.length; i++) {
@@ -123,7 +123,7 @@ class StatementGenerator {
 
     public <T> PreparedStatement all(Class<T> entityClass) {
         try {
-            String sql = String.format(ALL_TEMPLATE, resolveTable(entityClass));
+            String sql = String.format(ALL_TEMPLATE, tableFor(entityClass));
             info(sql);
             return connection.prepareStatement(sql);
         } catch (SQLException e) {
@@ -136,7 +136,7 @@ class StatementGenerator {
 
         PreparedStatement preparedStatement;
         try {
-            String sql = String.format(DELETE_TEMPLATE, resolveTable(entityClass), id);
+            String sql = String.format(DELETE_TEMPLATE, tableFor(entityClass), id);
             info(sql);
             preparedStatement = connection.prepareStatement(sql);
         } catch (SQLException e) {
@@ -190,19 +190,7 @@ class StatementGenerator {
         return Ordering.natural().onResultOf(getNameFunction).sortedCopy(getAnnotatedField(entityClass, Column.class));
     }
 
-    private Long getId(Object obj) {
-        Long id;
-        try {
-            Field idField = obj.getClass().getDeclaredField("id");
-            idField.setAccessible(true);
-            id = (Long) idField.get(obj);
-        } catch (Exception e) {
-            throw makeThrow("Exception encountered when get id of obj, : %s", stackTrace(e));
-        }
-        return id;
-    }
-
-    private String resolveTable(Class entityClass) {
+    private String tableFor(Class entityClass) {
         return ((Table) entityClass.getAnnotation(Table.class)).value();
     }
 }

@@ -5,6 +5,7 @@ import com.thoughtworks.orm.annotations.HasMany;
 import com.thoughtworks.orm.annotations.Table;
 
 import java.util.List;
+import java.util.Set;
 
 @Table("people")
 public class Person {
@@ -18,6 +19,12 @@ public class Person {
 
     @HasMany
     private List<Pet> pets;
+
+    @HasMany
+    private Set<Pet> petSet;
+
+    @HasMany
+    private Pet[] petArray;
 
     public Person() {
     }
@@ -34,4 +41,11 @@ public class Person {
         return pets;
     }
 
+    public Set<Pet> getPetSet() {
+        return petSet;
+    }
+
+    public Pet[] getPetArray() {
+        return petArray;
+    }
 }
