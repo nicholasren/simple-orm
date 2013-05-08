@@ -1,8 +1,0 @@
-<?xml version="1.1" encoding="UTF-8"?>
-<testsuite name="com.thoughtworks.orm.OneToManyTest" tests="1" failures="0" errors="0" timestamp="1970-01-01T00:00:00" hostname="Nicholas-Rens-MBP.local" time="1.367922124103E9">
-  <properties/>
-  <testcase name="should_return_pets_belongs_to_person" classname="com.thoughtworks.orm.OneToManyTest" time="0.059"/>
-  <system-out><![CDATA[SELECT * FROM people WHERE id = ?
-]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

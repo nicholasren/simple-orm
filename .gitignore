@@ -9,4 +9,5 @@
 *.ipr
 core/build/tmp/
 core/core.iml
+core/build/
 

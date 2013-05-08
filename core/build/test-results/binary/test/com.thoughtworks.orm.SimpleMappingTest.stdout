@@ -1,9 +1,0 @@
-SELECT * FROM pets WHERE id = ?
-SELECT * FROM pets WHERE person_id = ?
-SELECT * FROM pets WHERE id = ?
-SELECT * FROM pets WHERE id = ?
-SELECT * FROM pets WHERE id = ?
-UPDATE pets SET age = ? ,gender = ? ,name = ?  WHERE id = 1
-SELECT * FROM pets WHERE id = ?
-INSERT INTO pets (age,gender,id,name) VALUES(?,?,?,?)
-SELECT * FROM pets WHERE id = ?
