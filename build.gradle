@@ -49,6 +49,8 @@ project(":sample") {
   apply plugin: 'java'
   dependencies {
     compile project(':core')
+    compile "com.github.nicholasren:simple-di:0.0.6-SNAPSHOT"
+    compile "com.github.nicholasren:simple-mvc:0.0.1-SNAPSHOT"
     testCompile(
         "junit:junit-dep:$junitVersion",
         "org.hamcrest:hamcrest-core:$hamcrestVersion",
