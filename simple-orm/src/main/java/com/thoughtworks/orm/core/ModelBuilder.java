@@ -1,13 +1,10 @@
 package com.thoughtworks.orm.core;
 
 import com.thoughtworks.orm.annotations.Column;
-import com.thoughtworks.orm.annotations.HasMany;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.LazyLoader;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,14 +25,14 @@ class ModelBuilder<T> {
         this.sessionFactory = sessionFactory;
     }
 
-    public List<T> buildCollections(PreparedStatement statement) {
+    public List<T> build(PreparedStatement statement) {
         return createLazyCollection(statement);
     }
 
 
     private List<T> createLazyCollection(PreparedStatement statement) {
-        LazyLoader lazy = new Lazy(statement);
-        return (List<T>) Enhancer.create(List.class, lazy);
+        LazyLoader collectionLazyLoader = new CollectionLazyLoader(statement);
+        return (List<T>) Enhancer.create(List.class, collectionLazyLoader);
     }
 
 
@@ -61,17 +58,20 @@ class ModelBuilder<T> {
                 Object value = resultSet.getObject(field.getName(), field.getType());
                 field.set(model, value);
             }
-
-
         }
     }
 
 
-    public class Lazy implements LazyLoader {
+    private Enum getEnumValue(ResultSet resultSet, Field field) throws SQLException {
+        String strValue = resultSet.getObject(field.getName(), String.class);
+        return Enum.valueOf((Class<Enum>) field.getType(), strValue);
+    }
+
+    class CollectionLazyLoader implements LazyLoader {
 
         private PreparedStatement statement;
 
-        public Lazy(PreparedStatement statement) {
+        public CollectionLazyLoader(PreparedStatement statement) {
             this.statement = statement;
         }
 
@@ -84,10 +84,5 @@ class ModelBuilder<T> {
             }
             return list;
         }
-    }
-
-    private Enum getEnumValue(ResultSet resultSet, Field field) throws SQLException {
-        String strValue = resultSet.getObject(field.getName(), String.class);
-        return Enum.valueOf((Class<Enum>) field.getType(), strValue);
     }
 }

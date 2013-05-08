@@ -1,11 +1,7 @@
 package com.thoughtworks.orm.core;
 
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.LazyLoader;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -32,7 +28,7 @@ public class SessionFactory {
 
     public <T> List<T> where(String condition, Object[] params, Class entityClass) {
         ModelBuilder modelBuilder = new ModelBuilder(entityClass, this);
-        return (List<T>) modelBuilder.buildCollections(statementGenerator.where(condition, params, entityClass));
+        return (List<T>) modelBuilder.build(statementGenerator.where(condition, params, entityClass));
     }
 
     public <T> void insert(T t) {
@@ -55,7 +51,7 @@ public class SessionFactory {
 
     public <T> List<T> all(Class<T> entityClass) {
         ModelBuilder modelBuilder = new ModelBuilder(entityClass, this);
-        return (List<T>) modelBuilder.buildCollections(statementGenerator.all(entityClass));
+        return (List<T>) modelBuilder.build(statementGenerator.all(entityClass));
     }
     //===============exposed API end====================================//
 
