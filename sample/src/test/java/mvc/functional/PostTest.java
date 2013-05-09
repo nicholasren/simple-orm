@@ -15,15 +15,15 @@ public class PostTest extends FunctionalTest {
         driver.get(JETTY_SERVER_URL + "/house/new");
 
         WebElement name = driver.findElement(By.name("house.name"));
-        WebElement doorHeight = driver.findElement(By.name("house.door.height"));
-        WebElement doorWidth = driver.findElement(By.name("house.door.width"));
+//        WebElement doorHeight = driver.findElement(By.name("house.door.height"));
+//        WebElement doorWidth = driver.findElement(By.name("house.door.width"));
 
         name.sendKeys("Doudou");
-        doorHeight.sendKeys("2");
-        doorWidth.sendKeys("1");
+//        doorHeight.sendKeys("2");
+//        doorWidth.sendKeys("1");
 
         name.submit();
 
-        assertThat(getBody(), equalTo("house: name: Doudou, door: width: 1m, height: 2m"));
+        assertThat(getBody(), equalTo("house: name: Doudou"));
     }
 }

@@ -9,6 +9,7 @@ import com.thoughtworks.simpleframework.di.annotation.Component;
 import com.thoughtworks.simpleframework.di.annotation.Inject;
 import com.thoughtworks.simpleframework.di.core.Lifecycle;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,19 +24,19 @@ public class HouseController implements Controller {
 
     @Path
     public String index() {
-        modelMap.put("total", 5);
+        modelMap.put("total", service.all().size());
         return "house/index";
     }
 
     @Path
-    public String show(@Param("id") String id) {
+    public String show(@Param("id") String id) throws SQLException {
         modelMap.put("house", service.get(id));
         return "house/show";
     }
 
     @Path
-    public String create(@Param("house") House house) {
-        House created = service.create(house);
+    public String create(@Param("house") House house) throws SQLException {
+        House created = (House) service.create(house);
         modelMap.put("house", created);
         return "house/show";
     }

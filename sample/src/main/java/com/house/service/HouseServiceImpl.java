@@ -1,31 +1,39 @@
 package com.house.service;
 
 import com.house.model.House;
+import com.thoughtworks.orm.core.SessionFactory;
 import com.thoughtworks.simpleframework.di.annotation.Component;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.sql.Connection;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Component
 public class HouseServiceImpl implements HouseService {
 
     private static AtomicLong idSequence = new AtomicLong();
-    private Map<String, House> pets = new HashMap<>();
+    protected static Connection connection;
+    protected SessionFactory sessionFactory;
+    protected static String databaseUrl = "jdbc:mysql://localhost:3306/orm?user=root";
 
-    @Override
-    public House create(House house) {
-        house.setId(String.valueOf(idSequence.incrementAndGet()));
-        pets.put(house.getId(), house);
-        return house;
+    public HouseServiceImpl() {
+        this.sessionFactory = new SessionFactory(databaseUrl);
     }
 
     @Override
     public House get(String id) {
-        House pet = pets.get(id);
-        if (pet == null) {
-            pet = new House("Dummy", "Doudou");
-        }
-        return pet;
+        return sessionFactory.findById(1L, House.class);
+    }
+
+    @Override
+    public List<House> all() {
+        return sessionFactory.all(House.class);
+    }
+
+    @Override
+    public House create(House house) {
+        house.setId(idSequence.incrementAndGet());
+        sessionFactory.insert(house);
+        return house;
     }
 }

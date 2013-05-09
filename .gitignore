@@ -10,4 +10,7 @@
 sample/sample.iml
 simple-orm/simple-orm.iml
 simple-orm/build/
+sample/build/
 chromedriver.log
+sample/chromedriver.log
+simple-orm/chromedriver.log

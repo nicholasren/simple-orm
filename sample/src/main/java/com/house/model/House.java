@@ -1,34 +1,46 @@
 package com.house.model;
 
-public class House {
-    private String id;
+import com.thoughtworks.orm.annotations.Column;
+import com.thoughtworks.orm.annotations.Table;
 
-    public House(String id, String name) {
+@Table("houses")
+public class House {
+
+    @Column
+    private Long id;
+
+    public House(Long id, String name) {
         this.id = id;
         this.name = name;
     }
 
-
+    @Column
     private String name;
 
-    private Door door;
+//    @HasMany
+//    private List<Door> door;
 
     public House() {
     }
 
-    public void setId(String id) {
+
+    public void setId(long id) {
         this.id = id;
     }
 
-    public Door getDoor() {
-        return door;
-    }
-
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
     public String getName() {
         return name;
     }
+
+//    public void setDoor(List<Door> door) {
+//        this.door = door;
+//    }
+//
+//    public List<Door> getDoor() {
+//        return door;
+//    }
 }
