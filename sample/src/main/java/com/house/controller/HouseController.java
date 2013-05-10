@@ -36,7 +36,7 @@ public class HouseController implements Controller {
 
     @Path
     public String create(@Param("house") House house) throws SQLException {
-        House created = (House) service.create(house);
+        House created = service.create(house);
         modelMap.put("house", created);
         return "house/show";
     }

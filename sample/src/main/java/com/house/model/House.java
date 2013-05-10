@@ -1,7 +1,10 @@
 package com.house.model;
 
 import com.thoughtworks.orm.annotations.Column;
+import com.thoughtworks.orm.annotations.HasMany;
 import com.thoughtworks.orm.annotations.Table;
+
+import java.util.List;
 
 @Table("houses")
 public class House {
@@ -17,8 +20,8 @@ public class House {
     @Column
     private String name;
 
-//    @HasMany
-//    private List<Door> door;
+    @HasMany
+    private List<Door> door;
 
     public House() {
     }
@@ -36,11 +39,11 @@ public class House {
         return name;
     }
 
-//    public void setDoor(List<Door> door) {
-//        this.door = door;
-//    }
-//
-//    public List<Door> getDoor() {
-//        return door;
-//    }
+    public void setDoor(List<Door> door) {
+        this.door = door;
+    }
+
+    public List<Door> getDoor() {
+        return door;
+    }
 }

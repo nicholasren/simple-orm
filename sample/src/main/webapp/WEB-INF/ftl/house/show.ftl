@@ -1,2 +1,1 @@
-house: name: ${house.name!}
-<#--, door: width: ${house.door.width!}m, height: ${house.door.height!}m-->
+house: name: ${house.name!} , door: width: ${house.door[0].width!}m, height: ${house.door[0].height!}m

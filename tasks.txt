@@ -5,7 +5,7 @@
 5. one to many association DONE
 6. query records by criteria DONE
 7. enum mapping DONE
-9. Set mapping
+9. Set mapping  DONE
 8. Array mapping
 10. inject attributes to bean
 11. collection support for MVC
