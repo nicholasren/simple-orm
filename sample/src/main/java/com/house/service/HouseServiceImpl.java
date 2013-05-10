@@ -1,12 +1,17 @@
 package com.house.service;
 
+import com.house.model.Door;
 import com.house.model.House;
 import com.thoughtworks.orm.core.SessionFactory;
 import com.thoughtworks.simpleframework.di.annotation.Component;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static java.sql.DriverManager.getConnection;
 
 @Component
 public class HouseServiceImpl implements HouseService {
@@ -21,8 +26,9 @@ public class HouseServiceImpl implements HouseService {
     }
 
     @Override
-    public House get(String id) {
-        return sessionFactory.findById(1L, House.class);
+    public House get(Long id) {
+        return sessionFactory.findById(id, House.class);
+
     }
 
     @Override
@@ -31,9 +37,22 @@ public class HouseServiceImpl implements HouseService {
     }
 
     @Override
-    public House create(House house) {
+    public void create(House house) {
         house.setId(idSequence.incrementAndGet());
         sessionFactory.insert(house);
-        return house;
+        Door door = house.getDoor().get(0);
+        door.setId(1L);
+        sessionFactory.insert(door);
+        prepareDoor(1L,1L);
+    }
+
+    protected void prepareDoor(Long id, Long houseId) {
+        String insertSQL = "UPDATE doors SET house_id = %s WHERE id = %s";
+        try {
+            Connection cc = getConnection(databaseUrl);
+            cc.createStatement().executeUpdate(String.format(insertSQL, id, houseId));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

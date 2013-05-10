@@ -29,15 +29,16 @@ public class HouseController implements Controller {
     }
 
     @Path
-    public String show(@Param("id") String id) throws SQLException {
+    public String show(@Param("id") Long id) throws SQLException {
         modelMap.put("house", service.get(id));
         return "house/show";
     }
 
     @Path
     public String create(@Param("house") House house) throws SQLException {
-        House created = service.create(house);
-        modelMap.put("house", created);
+        service.create(house);
+        House houseFindByIdInDB = service.get(house.getId());
+        modelMap.put("house", houseFindByIdInDB);
         return "house/show";
     }
 
