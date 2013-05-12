@@ -32,8 +32,7 @@ public class SessionFactory {
     }
 
     public <T> void insert(T t) {
-        statementGenerator.insertSimpleField(t);
-        statementGenerator.insertHasManyField(t);
+        executeUpdate(statementGenerator.insert(t));
     }
 
     public <T> void update(T t) {
@@ -64,9 +63,11 @@ public class SessionFactory {
         }
     }
 
-    private void executeUpdate(PreparedStatement preparedStatement) {
+    private void executeUpdate(List<PreparedStatement> preparedStatements) {
         try {
-            preparedStatement.executeUpdate();
+            for (PreparedStatement preparedStatement : preparedStatements) {
+                preparedStatement.executeUpdate();
+            }
         } catch (SQLException e) {
             throw makeThrow("Error encountered when executing update statement: %s", stackTrace(e));
         }

@@ -11,4 +11,5 @@ cd ../simple-orm && \
 echo "uploading simple-mvc" && \
 gradle simple-orm:uploadArchives
 echo "installing simple-xx jars" && \
+gradle clean
 gradle idea

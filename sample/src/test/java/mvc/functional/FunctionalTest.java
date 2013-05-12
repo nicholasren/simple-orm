@@ -1,7 +1,7 @@
 package mvc.functional;
 
 import com.thoughtworks.mvc.main.JettyLauncher;
-import com.thoughtworks.orm.ORMTest;
+import com.thoughtworks.orm.*;
 import org.junit.After;
 import org.junit.Before;
 import org.openqa.selenium.By;
