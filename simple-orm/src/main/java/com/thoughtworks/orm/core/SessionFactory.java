@@ -27,7 +27,7 @@ public class SessionFactory {
     }
 
     public <T> List<T> where(String condition, Object[] params, Class entityClass) {
-        ModelBuilder modelBuilder = new ModelBuilder(entityClass, this);
+        ModelBuilder modelBuilder = new ModelBuilder(entityClass, this.statementGenerator);
         return (List<T>) modelBuilder.build(statementGenerator.where(condition, params, entityClass));
     }
 
@@ -51,7 +51,7 @@ public class SessionFactory {
     }
 
     public <T> List<T> all(Class<T> entityClass) {
-        ModelBuilder modelBuilder = new ModelBuilder(entityClass, this);
+        ModelBuilder modelBuilder = new ModelBuilder(entityClass, this.statementGenerator);
         return (List<T>) modelBuilder.build(statementGenerator.all(entityClass));
     }
     //===============exposed API end====================================//

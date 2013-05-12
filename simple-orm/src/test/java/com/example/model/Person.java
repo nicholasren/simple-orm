@@ -23,9 +23,6 @@ public class Person {
     @HasMany
     private Set<Pet> petSet;
 
-    @HasMany
-    private Pet[] petArray;
-
     public Person() {
     }
 
@@ -43,9 +40,5 @@ public class Person {
 
     public Set<Pet> getPetSet() {
         return petSet;
-    }
-
-    public Pet[] getPetArray() {
-        return petArray;
     }
 }

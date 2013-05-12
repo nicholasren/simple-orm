@@ -158,7 +158,7 @@ class StatementGenerator {
         return preparedStatement;
     }
 
-    private String join(Collection<String> items, String delimiter) {
+    public static String join(Collection<String> items, String delimiter) {
         StringBuilder builder = new StringBuilder();
         for (String item : items) {
             builder.append(item).append(delimiter);
