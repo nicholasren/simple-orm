@@ -16,9 +16,9 @@ public class OneToManyTest extends ORMTest {
     @Test
     public void should_return_pets_belongs_to_person() {
         preparePerson(1L, "jim");
-        preparePet(1L, "p1", "FEMALE", 1, 1L);
-        preparePet(2L, "p2", "FEMALE", 1, 1L);
-        preparePet(3L, "p3", "FEMALE", 1, 1L);
+        preparePet("p1", "FEMALE", 1, 1L);
+        preparePet("p2", "FEMALE", 1, 1L);
+        preparePet("p3", "FEMALE", 1, 1L);
 
 
         Person person = sessionFactory.findById(1L, Person.class);
@@ -31,9 +31,9 @@ public class OneToManyTest extends ORMTest {
     @Test
     public void should_return_pet_set_belongs_to_person() {
         preparePerson(1L, "jim");
-        preparePet(1L, "p1", "FEMALE", 1, 1L);
-        preparePet(2L, "p2", "FEMALE", 1, 1L);
-        preparePet(3L, "p3", "FEMALE", 1, 1L);
+        preparePet("p1", "FEMALE", 1, 1L);
+        preparePet("p2", "FEMALE", 1, 1L);
+        preparePet("p3", "FEMALE", 1, 1L);
 
 
         Person person = sessionFactory.findById(1L, Person.class);
@@ -49,9 +49,9 @@ public class OneToManyTest extends ORMTest {
         preparePerson(2L, "Kate");
         preparePerson(3L, "Henry");
 
-        preparePet(1L, "p1", "FEMALE", 1, 1L);
-        preparePet(2L, "p2", "FEMALE", 1, 1L);
-        preparePet(3L, "p3", "FEMALE", 1, 2L);
+        preparePet("p1", "FEMALE", 1, 1L);
+        preparePet("p2", "FEMALE", 1, 1L);
+        preparePet("p3", "FEMALE", 1, 2L);
         List<Person> people = sessionFactory.all(Person.class);
 
         assertThat(people.size(), equalTo(3));

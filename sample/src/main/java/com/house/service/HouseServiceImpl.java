@@ -40,8 +40,6 @@ public class HouseServiceImpl implements HouseService {
     public void create(House house) {
         house.setId(idSequence.incrementAndGet());
         sessionFactory.insert(house);
-        Door door = house.getDoor().get(0);
-        sessionFactory.insert(door);
     }
 
     protected void prepareDoor(Long id, Long houseId) {

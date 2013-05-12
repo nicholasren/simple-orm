@@ -34,10 +34,10 @@ public class ORMTest {
         connection.createStatement().execute("truncate people");
     }
 
-    protected void preparePet(Long id, String name, String gender, Integer age, Long personId) {
-        String insertSQL = "INSERT INTO pets values(%d,'%s', '%s', %d, %d)";
+    protected void preparePet(String name, String gender, Integer age, Long personId) {
+        String insertSQL = "INSERT INTO pets values(%d, '%s', '%s', %d, %d)";
         try {
-            connection.createStatement().executeUpdate(String.format(insertSQL, id, name, gender, age, personId));
+            connection.createStatement().executeUpdate(String.format(insertSQL, null, name, gender, age, personId));
         } catch (SQLException e) {
             e.printStackTrace();
         }
