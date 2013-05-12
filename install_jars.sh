@@ -1,4 +1,6 @@
 #!/bin/sh -e
+gradle clean
+rm -rf /tmp/repo/simple-*
 cd ../simple-di && \
 echo "uploading simple-di" && \
 gradle uploadArchives && \

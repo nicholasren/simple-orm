@@ -32,7 +32,8 @@ public class SessionFactory {
     }
 
     public <T> void insert(T t) {
-        executeUpdate(statementGenerator.insert(t));
+        statementGenerator.insertSimpleField(t);
+        statementGenerator.insertHasManyField(t);
     }
 
     public <T> void update(T t) {

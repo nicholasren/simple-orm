@@ -82,7 +82,6 @@ public class SimpleMappingTest extends ORMTest {
     @Test
     public void should_insert_object_to_database() throws SQLException, NoSuchFieldException, IllegalAccessException {
         Pet pet = new Pet();
-        pet.setId(1L);
         pet.setName("Test6 James");
         pet.setGender(Gender.FEMALE);
         pet.setAge(19);

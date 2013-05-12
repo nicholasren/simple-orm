@@ -4,13 +4,16 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Ordering;
 import com.thoughtworks.orm.annotations.Column;
+import com.thoughtworks.orm.annotations.HasMany;
 import com.thoughtworks.orm.annotations.Table;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 import static com.google.common.collect.Collections2.filter;
 import static com.google.common.collect.Collections2.transform;
@@ -38,11 +41,21 @@ class StatementGenerator {
         this.connection = connection;
     }
 
-    public PreparedStatement insert(Object obj) {
+    public void insertHasManyField(Object obj) {
+        Collection<Field> sortedAnnotatedField_hasMany = getSortedAnnotatedField_hasMany(obj.getClass());
+        Collection<Object> values = getFieldValues(obj, sortedAnnotatedField_hasMany);
+        Iterator<Object> iterator = values.iterator();
+        while (iterator.hasNext()) {
+            Object value = ((ArrayList) iterator.next()).get(0);
+            Collection<Field> field = getSortedAnnotatedField(value.getClass());
+            setForeignKeyValue(value, field, obj.getClass().getSimpleName().toLowerCase());
+            insertSimpleField(value);
+        }
+    }
+
+    protected void insertSimpleField(Object obj) {
         String table = resolveTable(obj);
-
         Collection<Field> sortedAnnotatedField = getSortedAnnotatedField(obj.getClass());
-
         String sql = String.format(INSERTION_TEMPLATE, table, join(getFieldNames(sortedAnnotatedField), COLUMN_DELIMITER),
                 join(getFieldValuePlaceHolders(obj), COLUMN_DELIMITER));
 
@@ -57,10 +70,10 @@ class StatementGenerator {
                 preparedStatement.setObject(i + 1, fieldValues[i]);
             }
 
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw makeThrow("Exception encountered when generating insert statement: %s", stackTrace(e));
         }
-        return preparedStatement;
     }
 
     private String resolveTable(Object obj) {
@@ -185,9 +198,26 @@ class StatementGenerator {
             }
         });
     }
+    
+    private void setForeignKeyValue(final Object t, Collection<Field> fields, final String foreignKeyName) {
+        for (Field field : fields) {
+            field.setAccessible(true);
+            if (field.getName().equals(foreignKeyName + "_id")) {
+                try {
+                    field.set(t, 1L);
+                } catch (IllegalAccessException e) {
+                    makeThrow("Exception encountered when generating insert statement: %s", stackTrace(e));
+                }
+            }
+        }
+    }
 
     private Collection<Field> getSortedAnnotatedField(Class entityClass) {
         return Ordering.natural().onResultOf(getNameFunction).sortedCopy(getAnnotatedField(entityClass, Column.class));
+    }
+
+    private Collection<Field> getSortedAnnotatedField_hasMany(Class entityClass) {
+        return Ordering.natural().onResultOf(getNameFunction).sortedCopy(getAnnotatedField(entityClass, HasMany.class));
     }
 
     private String tableFor(Class entityClass) {

@@ -14,6 +14,9 @@ public class Door {
     @Column
     private Integer height;
 
+    @Column
+    private Long house_id;
+
     public Integer getWidth() {
         return width;
     }

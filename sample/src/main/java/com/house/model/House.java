@@ -9,13 +9,13 @@ import java.util.List;
 @Table("houses")
 public class House {
 
-    @Column
-    private Long id;
-
     public House(Long id, String name) {
         this.id = id;
         this.name = name;
     }
+
+    @Column
+    private Long id;
 
     @Column
     private String name;

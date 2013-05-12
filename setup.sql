@@ -4,7 +4,7 @@ create database orm;
 use orm;
 
 create table pets(
-  id INTEGER,
+  id INTEGER primary key NOT NULL AUTO_INCREMENT,
   name VARCHAR(100),
   gender VARCHAR(10),
   age INTEGER,
@@ -12,18 +12,18 @@ create table pets(
 );
 
 create table people(
-  id INTEGER,
+  id INTEGER primary key NOT NULL AUTO_INCREMENT,
   name VARCHAR(100)
 );
 
 
 create table houses(
-  id INTEGER,
+  id INTEGER primary key NOT NULL AUTO_INCREMENT,
   name VARCHAR(100)
 );
 
 create table doors(
-  id INTEGER,
+  id INTEGER primary key NOT NULL AUTO_INCREMENT,
   width INTEGER,
   height INTEGER,
   house_id INTEGER

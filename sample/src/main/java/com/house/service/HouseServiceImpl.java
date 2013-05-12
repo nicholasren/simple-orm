@@ -41,16 +41,14 @@ public class HouseServiceImpl implements HouseService {
         house.setId(idSequence.incrementAndGet());
         sessionFactory.insert(house);
         Door door = house.getDoor().get(0);
-        door.setId(1L);
         sessionFactory.insert(door);
-        prepareDoor(1L,1L);
     }
 
     protected void prepareDoor(Long id, Long houseId) {
         String insertSQL = "UPDATE doors SET house_id = %s WHERE id = %s";
         try {
-            Connection cc = getConnection(databaseUrl);
-            cc.createStatement().executeUpdate(String.format(insertSQL, id, houseId));
+            Connection statement = getConnection(databaseUrl);
+            statement.createStatement().executeUpdate(String.format(insertSQL, id, houseId));
         } catch (SQLException e) {
             e.printStackTrace();
         }
