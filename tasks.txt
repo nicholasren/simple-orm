@@ -6,6 +6,8 @@
 6. query records by criteria DONE
 7. enum mapping DONE
 9. Set mapping  DONE
-8. Array mapping
-10. inject attributes to bean
-11. collection support for MVC
+8. Array mapping  LATER
+10. inject attributes to bean LATER
+11. collection support for MVC DONE
+12. eager loading  'foreign_key in (1, 2, 4)'
+13. cascading save
